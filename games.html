@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a101a" />
+  <title>Playtime USA — Mobile-first</title>
+
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Rajdhani:wght@600;700&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Rajdhani:wght@600;700&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link href="./static/css/gl.css" rel="stylesheet" />
+</head>
+
+<style>
+  /* ========================================
+       Design tokens
+       ======================================== */
+  :root {
+    --steel-1: #1a1f26;
+    --steel-2: #232a33;
+    --panel-border: rgba(255, 255, 255, .1);
+    --panel-glow: 0 0 0 1px rgba(41, 255, 209, .22), 0 0 34px rgba(255, 63, 180, .16);
+    --panel-shadow: 0 18px 36px rgba(5, 12, 24, .38);
+    --text-primary: #e8ecf4;
+    --text-muted: #a4afc3;
+    --accent-cyan: #1de4ff;
+    --accent-pink: #ff37c8;
+    --accent-teal: #4BD288;
+    --accent-blue: #4fb4ff;
+    --accent-ice: #eaf6ff;
+    --grid-max: min(1380px, 100vw - 16px);
+
+    --jack-r: 3;
+    --jack-gap: 9;
+    --jack-bulb: 1.4;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box
+  }
+
+  html,
+  body {
+    height: 100%;
+    width: 100%
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth
+  }
+
+  body {
+    margin: 0;
+    font-family: Poppins, system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--text-primary);
+    background: linear-gradient(180deg, rgba(10, 16, 26, .92), rgba(10, 16, 26, .7));
+    background-attachment: fixed;
+    overflow-x: hidden;
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-top: 56px
+  }
+
+  /* ================= Header ================= */
+  .header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    background: linear-gradient(180deg, rgba(10, 16, 26, .92), rgba(10, 16, 26, .7));
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--panel-border);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .36);
+  }
+
+  .header-wrap {
+    max-width: var(--grid-max);
+    margin-inline: auto;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  /* =============== Marquee =============== */
+  .ptu-marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--panel-border);
+    background: linear-gradient(180deg, rgba(14, 22, 34, .92), rgba(8, 13, 22, .7))
+  }
+
+  .ptu-marquee__track {
+    display: flex;
+    gap: 28px;
+    width: max-content;
+    padding: 6px 12px;
+    font-size: .9rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    animation: marq var(--marq-dur, 30s) linear infinite
+  }
+
+  @keyframes marq {
+    to {
+      transform: translateX(-50%)
+    }
+  }
+
+  .ptu-marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px
+  }
+
+  .uk-border {
+    background: linear-gradient(92.61deg, #101b37 -11.07%, #bd0c70 19.99%, #e41476 37.71%, #a92cc9 60.96%, #02c8ed 91.39%, #fff 113.93%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: rgba(1, 1, 5, .9);
+    -webkit-text-stroke: 2px transparent;
+  }
+
+  /* =============== Ticker =============== */
+  .ticker {
+    border-bottom: 1.5px solid var(--panel-border);
+    background: linear-gradient(180deg, rgba(14, 22, 34, .92), rgba(8, 13, 22, .7));
+    position: relative;
+    z-index: 40;
+    margin-bottom: 10px
+  }
+
+  .ticker .wrap {
+    height: 22px;
+    overflow: hidden
+  }
+
+  .ticker .row {
+    display: flex;
+    gap: 0;
+    margin-bottom: 10px;
+    padding: 0;
+    align-items: stretch
+  }
+
+  .ticker .cell {
+    height: 22px;
+    display: flex;
+    align-items: center;
+    color: var(--accent, var(--accent-pink))
+  }
+
+  .ticker .window {
+    position: relative;
+    height: 20px;
+    min-width: max(90px, 10ch);
+    isolation: isolate
+  }
+
+  .ticker .marquee {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none
+  }
+
+  .ticker .marquee rect {
+    rx: var(--jack-r);
+    fill: none
+  }
+
+  .ticker .marquee .rail {
+    stroke: currentColor;
+    stroke-width: .8;
+    opacity: .7
+  }
+
+  .ticker .marquee .bulbs {
+    stroke: currentColor;
+    stroke-linecap: round
+  }
+
+  .ticker .marquee .bulbs.p {
+    stroke-width: var(--jack-bulb);
+    stroke-dasharray: 0 var(--jack-gap)
+  }
+
+  .ticker .marquee .bulbs.s {
+    stroke-width: calc(var(--jack-bulb)*.7);
+    stroke-dasharray: 0 var(--jack-gap);
+    stroke-dashoffset: 3
+  }
+
+  .pixel-text {
+    --px: 1px;
+    background-image: radial-gradient(currentColor 62%, transparent 64%);
+    background-size: var(--px) var(--px);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 1px currentColor);
+    text-transform: uppercase
+  }
+
+  .ticker .label,
+  .ticker .label2,
+  .ticker .amount {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'Press Start 2P', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    line-height: 12px;
+    letter-spacing: .3px
+  }
+
+  @keyframes jackpotFlash {
+
+    0%,
+    33.33% {
+      opacity: 1;
+      visibility: visible
+    }
+
+    33.34%,
+    100% {
+      opacity: 0;
+      visibility: hidden
+    }
+  }
+
+  @keyframes labelFlash {
+
+    0%,
+    33.33% {
+      opacity: 0;
+      visibility: hidden
+    }
+
+    33.34%,
+    66.66% {
+      opacity: 1;
+      visibility: visible
+    }
+
+    66.67%,
+    100% {
+      opacity: 0;
+      visibility: hidden
+    }
+  }
+
+  @keyframes amountFlash {
+
+    0%,
+    66.66% {
+      opacity: 0;
+      visibility: hidden
+    }
+
+    66.67%,
+    100% {
+      opacity: 1;
+      visibility: visible
+    }
+  }
+
+  .ticker .label {
+    animation: labelFlash 3s steps(1, end) infinite
+  }
+
+  .ticker .label2 {
+    animation: jackpotFlash 3s steps(1, end) infinite
+  }
+
+  .ticker .amount {
+    animation: amountFlash 3s steps(1, end) infinite
+  }
+
+  /* Universal Button System - ONE class, infinite customization */
+  /* Default button values (can be overridden per-button with inline styles) */
+  --btn-bg-start: rgba(37, 242, 214, 0.22);
+  --btn-bg-end: rgba(121, 90, 255, 0.18);
+  --btn-border: rgba(255, 255, 255, 0.15);
+  --btn-radius: 16px;
+  --btn-shadow: var(--panel-glow);
+  --btn-text-color: var(--text-primary);
+  --btn-font-weight: 700;
+  --btn-padding: 12px 20px;
+  --btn-font-size: 1rem;
+
+  /* Hover states */
+  --btn-hover-shadow: 0 0 0 1px rgba(41, 255, 209, 0.4),
+  0 0 44px rgba(255, 63, 180, 0.28);
+  --btn-hover-transform: scale(1.05);
+  --btn-hover-bg-start: var(--btn-bg-start);
+  --btn-hover-bg-end: var(--btn-bg-end);
+
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 38;
+    background: linear-gradient(180deg, rgba(14, 22, 34, .92), rgba(8, 13, 22, .65));
+    border-bottom: 1px solid var(--panel-border);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .26)
+  }
+
+  .controls-wrap {
+    max-width: var(--grid-max);
+    margin-inline: auto;
+    padding: 12px 8px;
+    display: grid;
+    gap: 10px
+  }
+
+  .categories {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none
+  }
+
+  .categories::-webkit-scrollbar {
+    display: none
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 1.2rem;
+    background: linear-gradient(180deg, rgba(83, 147, 151, .62), rgba(53, 21, 42, .88));
+    border: 2px solid rgba(98, 100, 105, .9);
+    border-bottom: 5px solid rgba(53, 21, 42, .5);
+    box-shadow: 0 4px 12
+      /* =============== Controls =============== */
+      px rgba(0, 0, 0, .26);
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: transform .2s, box-shadow .2s, color .2s;
+    cursor: pointer;
+    transform: translateY(3px)
+  }
+
+  .chip:hover,
+  .chip.active {
+    color: var(--text-primary);
+    background-image: linear-gradient(rgba(66, 143, 182, .904), rgba(85, 145, 185, .8));
+    border-color: rgb(104, 160, 170);
+    border-bottom-color: rgba(63, 26, 51, .5);
+    box-shadow: 0 1px 10px rgba(33, 85, 119, .65);
+    transform: scale(1.05)
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px
+  }
+
+  .search,
+  .select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    background: rgba(28, 36, 52, .85);
+    border: 1px solid rgba(255, 255, 255, .08);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .04);
+    color: var(--text-muted);
+    font-size: .9rem
+  }
+
+  .search input {
+    all: unset;
+    flex: 1;
+    color: var(--text-primary)
+  }
+
+  .select select {
+    all: unset;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 600
+  }
+
+  /* =============== Main grid =============== */
+  .main {
+    flex: 1;
+    max-width: var(--grid-max);
+    margin-inline: auto;
+    width: 100%;
+    padding: 16px 8px max(96px, env(safe-area-inset-bottom) + 80px);
+    display: grid;
+    gap: 16px
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px
+  }
+
+  .card {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(25, 32, 46, .92), rgba(12, 18, 28, .92));
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--panel-shadow);
+    display: grid;
+    grid-template-rows: 1fr auto;
+    aspect-ratio: 3/4;
+    isolation: isolate
+  }
+
+  .card .thumb {
+    position: relative
+  }
+
+  .card .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.02);
+    transition: transform .4s
+  }
+
+  .badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 3;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: .72rem;
+    letter-spacing: .4px;
+    background: linear-gradient(180deg, #ff7bb0, #ff3f7d);
+    color: #18000a;
+    box-shadow: 0 12px 24px rgba(255, 140, 170, .45)
+  }
+
+  .jack-micro {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(5, 9, 15, .72);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, .08);
+    font-family: Rajdhani, Poppins, sans-serif;
+    font-weight: 700;
+    letter-spacing: .4px
+  }
+
+  .actions {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    gap: 12px;
+    padding: 12px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .3s, transform .3s;
+    z-index: 4
+  }
+
+  .actions .btn {
+    padding: 10px 16px;
+    border: 0;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(37, 242, 214, .22), rgba(121, 90, 255, .18));
+    color: var(--text-primary);
+    font-weight: 700;
+    box-shadow: var(--panel-glow);
+    cursor: pointer
+  }
+
+  .card:hover .thumb img {
+    transform: scale(1.08)
+  }
+
+  .card:hover .actions {
+    opacity: 1;
+    transform: translateY(0)
+  }
+
+  /* =============== Tab bar =============== */
+  .tabbar {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 60;
+    padding: 6px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, rgba(21, 58, 58, .75), rgba(36, 14, 26, .75));
+    backdrop-filter: blur(16px);
+    display: flex;
+    gap: 12px
+  }
+
+  .tab {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 8px;
+    border-radius: 14px;
+    font-size: .90rem;
+    font-weight: 900;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    cursor: pointer
+  }
+
+  .tab.active {
+    color: var(--text-primary);
+    background: linear-gradient(2000deg, rgba(37, 242, 215, .596), rgba(11, 12, 12, .63));
+    border-color: rgba(94, 92, 92, .925)
+  }
+
+  /* =============== Mobile-first modals =============== */
+  .profile-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    background: rgba(0, 0, 0, .52);
+    backdrop-filter: blur(6px);
+    transition: opacity .2s;
+    padding: env(safe-area-inset-top) 8px calc(8px + env(safe-area-inset-bottom)) 8px;
+  }
+
+  .profile-modal.is-open {
+    display: block;
+    opacity: 1;
+    visibility: visible
+  }
+
+  .profile-card {
+    position: relative;
+    margin: 0 auto;
+    height: 100%;
+    width: 100%;
+    max-width: 560px;
+    background: linear-gradient(180deg, rgba(25, 32, 46, .98), rgba(12, 18, 28, .98));
+    border: 1px solid var(--panel-border);
+    box-shadow: var(--panel-shadow);
+    border-radius: 0;
+    overflow: auto;
+  }
+
+  /* Elevate card above bottom bar and ensure full visibility */
+  .profile-card:focus {
+    outline: none
+  }
+
+  @media (min-width:480px) {
+    .profile-card {
+      height: auto;
+      max-height: 90dvh;
+      border-radius: 18px;
+      margin-top: 6vh
+    }
+  }
+
+  .profile-head {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px;
+    border-bottom: 1px solid var(--panel-border);
+    background: rgba(15, 20, 30, .9);
+    backdrop-filter: blur(8px);
+    z-index: 1
+  }
+
+  .profile-title {
+    margin: 0;
+    font-family: Rajdhani, Poppins, sans-serif;
+    font-weight: 700;
+    letter-spacing: .6px
+  }
+
+  .modal-close-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer
+  }
+
+  .profile-nav {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-bottom: 1px solid var(--panel-border);
+    overflow: auto
+  }
+
+  .pill-link {
+    appearance: none;
+    border: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(28, 36, 52, .6);
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    cursor: pointer
+  }
+
+  .pill-link[aria-current="page"] {
+    background: linear-gradient(180deg, rgba(37, 242, 214, .22), rgba(121, 90, 255, .18));
+    box-shadow: var(--panel-glow)
+  }
+
+  .profile-views {
+    padding: 12px
+  }
+
+  .row {
+    display: grid;
+    gap: 12px
+  }
+
+  .row.two {
+    grid-template-columns: 1fr 1fr
+  }
+
+  .field {
+    display: grid;
+    gap: 6px
+  }
+
+  .label {
+    font-weight: 700;
+    color: var(--text-muted)
+  }
+
+  .readonly {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: rgba(28, 36, 52, .5);
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px;
+    padding: 10px
+  }
+
+  .input {
+    appearance: none;
+    width: 100%;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(28, 36, 52, .5);
+    color: var(--text-primary)
+  }
+
+  .btn {
+    appearance: none;
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    background: linear-gradient(180deg, rgba(37, 242, 214, .22), rgba(121, 90, 255, .18));
+    box-shadow: var(--panel-glow);
+    cursor: pointer;
+    transition: box-shadow .2s, transform .2s transform: scale(1.05); 
+    
+  }
+
+  .btn.inline {
+    padding: 6px 8px;
+    border-radius: 10px
+  }
+
+  .hint {
+    margin: 4px 0 0;
+    color: var(--text-muted);
+    font-size: .9rem
+  }
+
+  .notice {
+    margin: 6px 0 0
+  }
+
+  .notice.ok {
+    color: #7fffb0
+  }
+
+  .notice.warn {
+    color: #ffd37f
+  }
+
+  .notice.err {
+    color: #ff7f9c
+  }
+
+  .view {
+    display: none
+  }
+
+  .view.is-active {
+    display: block
+  }
+
+  .history {
+    overflow: auto;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 12px
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse
+  }
+
+  th,
+  td {
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+    padding: 10px;
+    text-align: left
+  }
+
+  .bonus-cards {
+    display: grid;
+    gap: 12px
+  }
+
+  .bonus-card {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(28, 36, 52, .45)
+  }
+
+  .bonus-card__img {
+    background-size: cover;
+    background-position: center;
+    min-height: 92px
+  }
+
+  .bonus-card__body {
+    padding: 10px
+  }
+
+  .bonus-card__title {
+    font-weight: 800
+  }
+
+  .bonus-card__sub {
+    color: var(--text-muted);
+    font-size: .92rem;
+    margin-top: 4px
+  }
+
+  .ref-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(5, 9, 15, .72);
+    border: 1px solid rgba(255, 255, 255, .08)
+  }
+
+  .ref-code-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px
+  }
+
+  .ref-actions {
+    display: flex;
+    gap: 8px
+  }
+
+  /* ================== Breakpoints ================== */
+  @media (min-width:640px) {
+    .header-wrap {
+      padding: 8px 12px
+    }
+
+    .grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px
+    }
+
+    .actions .btn {
+      padding: 12px 20px
+    }
+  }
+
+  @media (min-width:820px) {
+    .grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr))
+    }
+  }
+
+  @media (min-width:1080px) {
+    .grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr))
+    }
+  }
+
+  @media (min-width:1320px) {
+    .grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr))
+    }
+  }
+</style>
+</head>
+
+<body>
+  <div class="app">
+    <!-- ================= Header ================= -->
+    <header class="header">
+      <div class="header-wrap">
+        <section class="ptu-marquee" aria-label="Welcome">
+          <div class="ptu-marquee__track" id="ptuMarqueeTrack">
+            <span class="ptu-marquee__item"><span>WELCOME TO</span><span class="uk-border">PLAY-TIME USA</span></span>
+            <span class="ptu-marquee__item" aria-hidden="true"><span>WELCOME TO</span><span class="uk-border">PLAY-TIME
+                USA</span></span>
+          </div>
+        </section>
+      </div>
+    </header>
+
+    <!-- ================= Ticker ================= -->
+    <section class="ticker" role="region" aria-label="Jackpot ticker">
+      <div class="wrap">
+        <div class="row">
+          <div class="cell" style="--accent:var(--accent-pink)">
+            <div class="window">
+              <svg class="marquee" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+                <rect class="rail" x="1" y="1" width="98" height="10"></rect>
+                <rect class="bulbs p" x="1" y="1" width="98" height="10"></rect>
+                <rect class="bulbs s" x="1" y="1" width="98" height="10"></rect>
+              </svg>
+              <p class="label pixel-text">MONTHLY</p>
+              <p class="amount pixel-text" id="neon-monthly">6,567.89</p>
+            </div>
+          </div>
+          <div class="cell" style="--accent:var(--accent-teal)">
+            <div class="window">
+              <svg class="marquee" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+                <rect class="rail" x="1" y="1" width="98" height="10"></rect>
+                <rect class="bulbs p" x="1" y="1" width="98" height="10"></rect>
+                <rect class="bulbs s" x="1" y="1" width="98" height="10"></rect>
+              </svg>
+              <p class="label pixel-text">WEEKLY</p>
+              <p class="amount pixel-text" id="neon-weekly">600</p>
+            </div>
+          </div>
+          <div class="cell" style="--accent:var(--accent-blue)">
+            <div class="window">
+              <svg class="marquee" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+                <rect class="rail" x="1" y="1" width="98" height="10"></rect>
+                <rect class="bulbs p" x="1" y="1" width="98" height="10"></rect>
+                <rect class="bulbs s" x="1" y="1" width="98" height="10"></rect>
+              </svg>
+              <p class="label pixel-text">DAILY</p>
+              <p class="label2 pixel-text">JACKPOT</p>
+              <p class="amount pixel-text" id="neon-daily">150</p>
+            </div>
+          </div>
+          <div class="cell" style="--accent:var(--accent-ice)">
+            <div class="window">
+              <svg class="marquee" viewBox="0 0 100 14" preserveAspectRatio="none" aria-hidden="true">
+                <rect class="rail" x="1" y="1" width="98" height="10"></rect>
+                <rect class="bulbs p" x="1" y="1" width="98" height="10"></rect>
+                <rect class="bulbs s" x="1" y="1" width="98" height="10"></rect>
+              </svg>
+              <p class="label pixel-text">HOURLY</p>
+              <p class="label2 pixel-text">JACKPOT</p>
+              <p class="amount pixel-text" id="neon-hourly">22</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Controls ================= -->
+    <section class="controls">
+      <div class="controls-wrap">
+        <nav class="categories" id="category-bar" aria-label="Game categories">
+          <button class="chip active" data-cat="all" type="button">All</button>
+          <button class="chip" data-cat="new" type="button">New</button>
+          <button class="chip" data-cat="slots" type="button">Slots</button>
+          <button class="chip" data-cat="fish" type="button">Fish</button>
+          <button class="chip" data-cat="cards" type="button">Cards</button>
+          <button class="chip" data-cat="crash" type="button">Crash</button>
+          <button class="chip" data-cat="arcade" type="button">Arcade</button>
+        </nav>
+        <div class="filters">
+          <label class="search"><input id="search" type="search" placeholder="Search games"
+              aria-label="Search games" /></label>
+          <label class="select"><select id="sort" aria-label="Sort games">
+              <option value="popular">Popular</option>
+              <option value="new">Newest</option>
+              <option value="az">A–Z</option>
+            </select></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= Main grid ================= -->
+    <main class="main">
+      <section class="grid" id="game-grid" aria-live="polite" aria-busy="true"></section>
+    </main>
+
+    <!-- ================= Tab bar ================= -->
+    <nav class="tabbar" aria-label="Quick links">
+      <button class="tab active" id="tab-refill" aria-label="Recharge"><img src="./images/icons/ft.gif" alt=""
+          width="22" height="22" /><span class="num">100.00</span></button>
+      <button class="tab" id="tab-profile" aria-label="Profile"><img src="./images/icons/profile-icon.png" alt=""
+          width="22" height="22" /><span class="num">PROFILE</span></button>
+      <button class="tab" id="tab-bonus" aria-label="Bonus"><img src="./images/icons/bonus.png" alt="" width="22"
+          height="22" /><span class="num">BONUS</span></button>
+    </nav>
+  </div>
+
+  <!-- ================= Profile Popup ================= -->
+  <div id="profile-modal" class="profile-modal" aria-hidden="true">
+    <div class="profile-card" role="dialog" aria-modal="true" aria-labelledby="profile-title" tabindex="-1">
+      <div class="profile-head">
+        <h3 id="profile-title" class="profile-title">PROFILE</h3>
+        <button type="button" class="modal-close-btn" id="profile-close" aria-label="Close">✕</button>
+      </div>
+
+      <nav class="profile-nav" aria-label="Profile sections">
+        <button class="pill-link" data-view="home" aria-current="page">Home</button>
+        <button class="pill-link" data-view="email">Change Email</button>
+        <button class="pill-link" data-view="password">Change Password</button>
+        <button class="pill-link" data-view="ref">Ref System</button>
+      </nav>
+
+      <div class="profile-views">
+        <!-- Home -->
+        <section id="view-home" class="view is-active">
+          <div class="row">
+            <div class="field">
+              <div class="label">Player</div>
+              <div id="player-name" class="readonly"><span>Player</span></div>
+            </div>
+            <div class="field">
+              <div class="label">Email</div>
+              <div id="player-email" class="readonly">
+                <span>player@example.com</span>
+                <button class="btn inline" data-goto="email" title="Edit">Edit</button>
+              </div>
+            </div>
+            <div class="row two">
+              <div class="field">
+                <div class="label">FUN Balance</div>
+                <div class="readonly"><span id="player-fun">100.00</span></div>
+              </div>
+              <div class="field">
+                <div class="label">Bonus</div>
+                <div class="readonly"><span id="player-bonus">20</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Change Email -->
+        <section id="view-email" class="view">
+          <form id="form-email" class="row" novalidate>
+            <div class="field">
+              <label class="label" for="email">New email</label>
+              <input class="input" id="email" name="email" type="email" required placeholder="name@example.com" />
+            </div>
+            <div class="row two">
+              <button class="btn" type="button" data-back="home">Back</button>
+              <button class="btn" type="submit">Update Email</button>
+            </div>
+            <p id="email-msg" class="notice"></p>
+          </form>
+        </section>
+
+        <!-- Change Password -->
+        <section id="view-password" class="view">
+          <form id="form-password" class="row" novalidate>
+            <div class="row two">
+              <div class="field">
+                <label class="label" for="curr">Current password</label>
+                <input class="input" id="curr" name="current" type="password" inputmode="numeric" pattern="\d{6}"
+                  required placeholder="6 digits" />
+              </div>
+              <div class="field">
+                <label class="label" for="newp">New password</label>
+                <input class="input" id="newp" name="next" type="password" inputmode="numeric" pattern="\d{6}" required
+                  placeholder="6 digits" />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="conf">Confirm new password</label>
+              <input class="input" id="conf" name="confirm" type="password" inputmode="numeric" pattern="\d{6}" required
+                placeholder="repeat 6 digits" />
+              <p class="hint">Must be exactly 6 digits.</p>
+            </div>
+            <div class="row two">
+              <button class="btn" type="button" data-back="home">Back</button>
+              <button class="btn" type="submit">Update Password</button>
+            </div>
+            <p id="pass-msg" class="notice"></p>
+          </form>
+        </section>
+
+        <!-- Ref System -->
+        <section id="view-ref" class="view">
+          <div class="ref-wrap">
+            <div class="field">
+              <div class="label">Referral Code</div>
+              <div class="ref-code-line">
+                <div class="ref-chip"><span id="ref-code">ABC123</span></div>
+                <div class="ref-actions">
+                  <button id="ref-copy" class="btn inline" type="button" title="Copy">Copy</button>
+                  <button id="ref-refresh" class="btn inline" type="button" title="New code">New</button>
+                  <button id="ref-share" class="btn inline" type="button" title="Share link">Share</button>
+                </div>
+              </div>
+              <p class="hint" id="ref-link-hint"></p>
+            </div>
+
+            <div class="field">
+              <div class="label">Promo Code</div>
+              <div class="row two">
+                <input id="promo-input" class="input" placeholder="Enter promo code" />
+                <button id="promo-activate" class="btn" type="button">Activate</button>
+              </div>
+              <p id="promo-msg" class="notice"></p>
+            </div>
+
+            <div class="bonus-cards">
+              <article class="bonus-card">
+                <div class="bonus-card__img" style="background-image:url('./images/bonuses/block/bonus3.jpg')"></div>
+                <div class="bonus-card__body">
+                  <div class="bonus-card__title">Invite Friend</div>
+                  <div class="bonus-card__sub">Invite a friend and get 5.00 FC</div>
+                  <div class="ref-actions">
+                    <button class="btn" id="invite-btn">Invite</button>
+                  </div>
+                </div>
+              </article>
+
+              <article class="bonus-card">
+                <div class="bonus-card__img"></div>
+                <div class="bonus-card__body">
+                  <div class="bonus-card__title">Final bonus 20%</div>
+                  <div class="bonus-card__sub">Refill from $5</div>
+                  <div class="ref-actions">
+                    <button class="btn inline" id="rules-toggle" type="button">Info</button>
+                  </div>
+                  <div id="rules-box" class="hint" style="display:none">Final bonus from $5, 20%. No cash back from game
+                    “planes”.</div>
+                </div>
+              </article>
+            </div>
+
+            <div class="field">
+              <div class="label">Bonuses History</div>
+              <div class="history">
+                <table id="bonus-history">
+                  <thead>
+                    <tr>
+                      <th>When</th>
+                      <th>Bonus</th>
+                      <th>Value</th>
+                      <th>Info</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <p id="ref-msg" class="notice"></p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Bonus Activate Popup ================= -->
+  <div id="bonus-modal" class="profile-modal" aria-hidden="true">
+    <div class="profile-card" role="dialog" aria-modal="true" aria-labelledby="bonus-title" tabindex="-1">
+      <div class="profile-head">
+        <h3 id="bonus-title" class="profile-title">Activate Bonus</h3>
+        <button type="button" class="modal-close-btn" id="bonus-close" aria-label="Close">✕</button>
+      </div>
+
+      <div class="row" style="padding:12px">
+        <div class="field">
+          <div class="label">Available bonus (one-time)</div>
+          <div class="readonly"><span id="bonus-available">0.00</span></div>
+        </div>
+        <div class="row two">
+          <button id="bonus-activate-btn" class="btn" type="button">Activate and apply to main</button>
+          <button id="bonus-open-extra" class="btn" type="button">Enter extra code</button>
+        </div>
+        <p id="bonus-msg" class="notice">This bonus can be applied once.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Extra Bonus Code Popup ================= -->
+  <div id="bonus-code-modal" class="profile-modal" aria-hidden="true">
+    <div class="profile-card" role="dialog" aria-modal="true" aria-labelledby="bonus-code-title" tabindex="-1">
+      <div class="profile-head">
+        <h3 id="bonus-code-title" class="profile-title">Extra Bonus Code</h3>
+        <button type="button" class="modal-close-btn" id="bonus-code-close" aria-label="Close">✕</button>
+      </div>
+
+      <form id="extra-code-form" class="row" style="padding:12px" novalidate>
+        <div class="field">
+          <label class="label" for="extra-code-input">Enter code from spin wheel</label>
+          <input id="extra-code-input" class="input" placeholder="e.g., SPIN20" required />
+        </div>
+        <div class="row two">
+          <button type="button" class="btn" id="extra-cancel">Back</button>
+          <button type="submit" class="btn">Apply to main</button>
+        </div>
+        <p id="bonus-code-msg" class="notice"></p>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /* ====== Seamless marquee duration based on width ====== */
+    (function () {
+      const track = document.getElementById('ptuMarqueeTrack');
+      const apply = () => { const half = track.scrollWidth; const total = Math.max(1, half * 2); const dur = Math.min(300, Math.max(5, total / 120)); track.style.setProperty('--marq-dur', dur + 's') };
+      window.addEventListener('load', apply); window.addEventListener('resize', apply); apply();
+    })();
+
+    /* ====== Neon jackpot number animation ====== */
+    const neonJackpots = {
+      monthly: { el: document.getElementById('neon-monthly'), delta: 32, decimals: 2 },
+      weekly: { el: document.getElementById('neon-weekly'), delta: 16, decimals: 0 },
+      daily: { el: document.getElementById('neon-daily'), delta: 8, decimals: 0 },
+      hourly: { el: document.getElementById('neon-hourly'), delta: 4, decimals: 0 }
+    };
+    function fmtNum(n, d) { return n.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) }
+    ; (function () {
+      const anim = new WeakMap(); const ease = t => t * (2 - t);
+      function tween(el, a, b, ms, step) { if (!el) return; const prev = anim.get(el); if (prev && prev.c) prev.c(); let id = null, c = false, s = performance.now(); function f(n) { if (c) return; const t = Math.min(1, (n - s) / ms), v = a + (b - a) * ease(t); step(v); if (t < 1) id = requestAnimationFrame(f) } id = requestAnimationFrame(f); anim.set(el, { c: () => { c = true; if (id) cancelAnimationFrame(id) } }) }
+      setInterval(() => { Object.values(neonJackpots).forEach(({ el, delta, decimals }) => { if (!el) return; const cur = parseFloat(el.textContent.replace(/,/g, '')) || 0; const inc = Math.floor(1 + Math.random() * delta); const next = cur + inc; tween(el, cur, next, 500, v => { el.textContent = fmtNum(Math.round(v), decimals) }); try { el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.02)' }, { transform: 'scale(1)' }], { duration: 260 }) } catch (_) { } }) }, 1400)
+    })();
+
+    /* ====== Demo data and grid rendering ====== */
+    const games = [
+      { id: 'dragons-fight', title: 'Dragons Fight', provider: 'SkyForge', jack: 12860, cat: ['all', 'slots', 'new'], hot: true, thumb: './media/thumb/300x300/dragons-fight.jpeg' },
+      { id: 'fish-battle', title: 'Fish Battle 5', provider: 'DeepBlue Labs', jack: 8640, cat: ['all', 'fish'], hot: false, thumb: './media/thumb/300x300/fish-battle-5.jpeg' },
+      { id: 'fish-eagle', title: 'Fish Eagle Fight', provider: 'DeepBlue Labs', jack: 14250, cat: ['all', 'fish', 'new'], hot: true, thumb: './media/thumb/300x300/fish-eagle-fight.jpeg' },
+      { id: 'galaxy-shooter', title: 'Galaxy Shooter', provider: 'Nova Interactive', jack: 19680, cat: ['all', 'arcade'], hot: false, thumb: './media/thumb/300x300/galaxy-shooter.jpeg' },
+      { id: 'kracky-king', title: 'Kracky King 2', provider: 'Arcadia', jack: 10840, cat: ['all', 'arcade'], hot: false, thumb: './media/thumb/300x300/kracky-king-2.jpeg' },
+      { id: 'seven-crabs', title: '7 Crabs Party', provider: 'Reef Studios', jack: 9480, cat: ['all', 'slots'], hot: false, thumb: './media/thumb/300x300/7-crabs-party.jpeg' },
+      { id: 'reef-rush', title: 'Fishing Dragnet', provider: 'DeepBlue Labs', jack: 11620, cat: ['all', 'fish'], hot: true, thumb: './media/thumb/300x300/fishing-dragnet.jpeg' },
+      { id: 'pilot', title: 'Pilot', provider: 'Arcadia', jack: 15240, cat: ['all', 'crash'], hot: true, thumb: './media/thumb/300x300/pilot.jpeg' },
+      { id: 'frog-shot', title: 'Frog Shot 2', provider: 'Playtime Originals', jack: 6120, cat: ['all', 'slots'], hot: false, thumb: './media/thumb/300x300/frog2shot.jpeg' },
+      { id: 'ocean-ib', title: 'Ocean Boost', provider: 'Nova Interactive', jack: 7420, cat: ['all', 'slots'], hot: false, thumb: './media/thumb/300x300/ib_hfw.jpeg' }
+    ];
+
+    const gridEl = document.getElementById('game-grid');
+    const catBar = document.getElementById('category-bar');
+    const searchEl = document.getElementById('search');
+    const sortEl = document.getElementById('sort');
+    const state = { cat: 'all', search: '', sort: 'popular' };
+    const format = n => Intl.NumberFormat('en-US').format(n);
+
+    function cardTemplate(game) {
+      return `
+      <article class="card" data-id="${game.id}" data-cats="${game.cat.join(',')}">
+        <div class="thumb">
+          ${game.hot ? '<div class="badge">HOT</div>' : ''}
+          <div class="jack-micro"><span class="val">${format(game.jack)}</span></div>
+          <img loading="lazy" src="${game.thumb}" alt="${game.title} thumbnail" />
+        </div>
+        <div class="actions" aria-hidden="true">
+          <button class="btn" data-action="play" data-id="${game.id}">Play</button>
+          <button class="btn" data-action="info" data-id="${game.id}">Info</button>
+        </div>
+        <div class="meta">
+          <div class="title">${game.title}</div>
+          <div class="sub">${game.provider}</div>
+        </div>
+      </article>`;
+    }
+
+    function applyFilters(list) {
+      const term = state.search.trim().toLowerCase();
+      let filtered = list.filter(g => state.cat === 'all' || g.cat.includes(state.cat));
+      if (term) filtered = filtered.filter(g => (g.title + g.provider).toLowerCase().includes(term));
+      switch (state.sort) {
+        case 'new': filtered.sort((a, b) => Number(b.cat.includes('new')) - Number(a.cat.includes('new'))); break;
+        case 'az': filtered.sort((a, b) => a.title.localeCompare(b.title)); break;
+        default: filtered.sort((a, b) => Number(b.hot) - Number(a.hot) || b.jack - a.jack);
+      }
+      return filtered;
+    }
+
+    function renderGrid() {
+      gridEl.setAttribute('aria-busy', 'true');
+      gridEl.innerHTML = applyFilters(games).map(cardTemplate).join('');
+      gridEl.setAttribute('aria-busy', 'false');
+    }
+
+    catBar.addEventListener('click', e => { const chip = e.target.closest('.chip'); if (!chip) return; catBar.querySelectorAll('.chip').forEach(b => b.classList.remove('active')); chip.classList.add('active'); state.cat = chip.dataset.cat; renderGrid() });
+    searchEl.addEventListener('input', () => { state.search = searchEl.value; renderGrid() });
+    sortEl.addEventListener('change', () => { state.sort = sortEl.value; renderGrid() });
+
+    gridEl.addEventListener('click', e => {
+      const button = e.target.closest('[data-action]');
+      if (button) { const { id, action } = button.dataset; if (action === 'play') { console.log('Launch game:', id) } else { alert('Game info coming soon for ' + id + '.') } }
+    });
+
+    /* ====== User + API ====== */
+    const user = { id: null, name: 'Player', email: 'player@example.com', funBalance: 100.00, bonusBalance: 20, bonusActivated: false, extraBonusRedeemed: false, refCode: 'ABC123' };
+    const LS_KEY = 'ptu:user';
+    function saveLocal() { localStorage.setItem(LS_KEY, JSON.stringify(user)) }
+    function loadLocal() { const s = localStorage.getItem(LS_KEY); if (s) Object.assign(user, JSON.parse(s)) }
+    async function api(path, options) {
+      try {
+        const res = await fetch(path, { credentials: 'include', ...options });
+        if (!res.ok) throw new Error(await res.text().catch(() => res.statusText));
+        const ct = res.headers.get('content-type') || '';
+        return ct.includes('application/json') ? res.json() : res.text();
+      } catch (err) { return { __error: true, message: String(err.message || err) } }
+    }
+    async function bootstrapUser() {
+      loadLocal();
+      const me = await api('/api/me');
+      if (!me?.__error && me) { Object.assign(user, me); saveLocal() }
+      renderUser(); renderRefBits(); loadBonusHistory(); syncBonusUI();
+    }
+    function renderUser() {
+      document.getElementById('player-name').firstElementChild.textContent = user.name || 'Player';
+      document.getElementById('player-email').firstElementChild.textContent = user.email || '—';
+      document.getElementById('player-fun').textContent = (Number(user.funBalance || 0)).toFixed(2);
+      document.getElementById('player-bonus').textContent = format(Number(user.bonusBalance || 0));
+    }
+
+    /* ====== Modal helpers ====== */
+    const bodyEl = document.body;
+    function openModal(el) { el.classList.add('is-open'); el.setAttribute('aria-hidden', 'false'); bodyEl.style.overflow = 'hidden'; const card = el.querySelector('.profile-card'); if (card) card.focus() }
+    function closeModal(el) { el.classList.remove('is-open'); el.setAttribute('aria-hidden', 'true'); bodyEl.style.overflow = ''; }
+
+    /* ====== Profile modal wiring ====== */
+    const modal = document.getElementById('profile-modal');
+    const tabProfile = document.getElementById('tab-profile');
+    const btnClose = document.getElementById('profile-close');
+
+    /* ====== Bonus modals wiring ====== */
+    const bonusModal = document.getElementById('bonus-modal');
+    const bonusClose = document.getElementById('bonus-close');
+    const bonusActivateBtn = document.getElementById('bonus-activate-btn');
+    const bonusMsg = document.getElementById('bonus-msg');
+    const bonusAvail = document.getElementById('bonus-available');
+    const bonusOpenExtra = document.getElementById('bonus-open-extra');
+
+    const bonusCodeModal = document.getElementById('bonus-code-modal');
+    const bonusCodeClose = document.getElementById('bonus-code-close');
+    const extraForm = document.getElementById('extra-code-form');
+    const extraInput = document.getElementById('extra-code-input');
+    const extraCancel = document.getElementById('extra-cancel');
+    const bonusCodeMsg = document.getElementById('bonus-code-msg');
+
+    /* ====== Tab state helper ====== */
+    const allTabs = [...document.querySelectorAll('.tabbar .tab')];
+    function setActiveTab(el) {
+      allTabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-pressed', 'false') });
+      el.classList.add('active'); el.setAttribute('aria-pressed', 'true');
+    }
+
+    /* Open correct popups from tabbar */
+    tabProfile.addEventListener('click', () => { setActiveTab(tabProfile); openModal(modal) });
+    btnClose.addEventListener('click', () => closeModal(modal));
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(modal) });
+
+    const tabBonus = document.getElementById('tab-bonus');
+    tabBonus.addEventListener('click', () => { setActiveTab(tabBonus); syncBonusUI(); openModal(bonusModal) });
+    bonusClose.addEventListener('click', () => closeModal(bonusModal));
+    bonusModal.addEventListener('click', e => { if (e.target === bonusModal) closeModal(bonusModal) });
+
+    document.getElementById('bonus-code-close').addEventListener('click', () => closeModal(bonusCodeModal));
+    extraCancel.addEventListener('click', () => closeModal(bonusCodeModal));
+    bonusCodeModal.addEventListener('click', e => { if (e.target === bonusCodeModal) closeModal(bonusCodeModal) });
+
+    document.getElementById('bonus-open-extra').addEventListener('click', () => {
+      bonusCodeMsg.textContent = ''; extraInput.value = ''; openModal(bonusCodeModal);
+    });
+
+    /* In-modal nav */
+    const navBtns = [...document.querySelectorAll('.pill-link')];
+    const views = {
+      home: document.getElementById('view-home'),
+      email: document.getElementById('view-email'),
+      password: document.getElementById('view-password'),
+      ref: document.getElementById('view-ref')
+    };
+    function goto(view) {
+      Object.values(views).forEach(v => v.classList.remove('is-active'));
+      views[view].classList.add('is-active');
+      navBtns.forEach(b => b.setAttribute('aria-current', b.dataset.view === view ? 'page' : 'false'));
+      if (view === 'ref') loadBonusHistory();
+    }
+    navBtns.forEach(b => b.addEventListener('click', () => goto(b.dataset.view)));
+    document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => goto(b.dataset.goto)));
+    document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', () => goto(b.dataset.back)));
+
+    /* Email */
+    const emailForm = document.getElementById('form-email'); const emailMsg = document.getElementById('email-msg');
+    emailForm.addEventListener('submit', async e => {
+      e.preventDefault(); emailMsg.textContent = ''; emailMsg.className = 'notice';
+      const email = e.target.email.value.trim();
+      if (!email) { emailMsg.textContent = 'Enter an email.'; emailMsg.classList.add('warn'); return }
+      const res = await api('/api/email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      if (res.__error) { user.email = email; saveLocal(); renderUser(); emailMsg.textContent = 'Updated locally (offline).'; emailMsg.classList.add('ok') }
+      else { user.email = res.email || email; saveLocal(); renderUser(); emailMsg.textContent = 'Email updated.'; emailMsg.classList.add('ok') }
+    });
+
+    /* Password */
+    const passForm = document.getElementById('form-password'); const passMsg = document.getElementById('pass-msg');
+    passForm.addEventListener('submit', async e => {
+      e.preventDefault(); passMsg.textContent = ''; passMsg.className = 'notice';
+      const cur = e.target.current.value.trim(), next = e.target.next.value.trim(), conf = e.target.confirm.value.trim();
+      if (!/^\d{6}$/.test(next) || !/^\d{6}$/.test(cur)) { passMsg.textContent = 'Passwords must be 6 digits.'; passMsg.classList.add('warn'); return }
+      if (next !== conf) { passMsg.textContent = 'New passwords do not match.'; passMsg.classList.add('warn'); return }
+      const res = await api('/api/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ current: cur, next }) });
+      if (res.__error) { passMsg.textContent = 'Password updated locally (offline).'; passMsg.classList.add('ok') }
+      else { passMsg.textContent = 'Password updated.'; passMsg.classList.add('ok') }
+      e.target.reset();
+    });
+
+    /* Ref System */
+    const refMsg = document.getElementById('ref-msg'); const promoMsg = document.getElementById('promo-msg');
+    function refLink() { return `${location.origin}/?ref=${encodeURIComponent(user.refCode || '')}` }
+    function renderRefBits() {
+      document.getElementById('ref-code').textContent = user.refCode || '—';
+      document.getElementById('ref-link-hint').textContent = user.refCode ? `Share: ${refLink()}` : '';
+    }
+    document.getElementById('ref-copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(user.refCode || ''); refMsg.textContent = 'Code copied.'; refMsg.className = 'notice ok' } catch { refMsg.textContent = 'Copy failed.'; refMsg.className = 'notice err' }
+    });
+    document.getElementById('ref-refresh').addEventListener('click', async () => {
+      refMsg.textContent = ''; refMsg.className = 'notice';
+      const res = await api('/api/referral/regenerate', { method: 'POST' });
+      if (res.__error) { user.refCode = Math.random().toString(36).slice(2, 8).toUpperCase(); saveLocal(); renderRefBits(); refMsg.textContent = 'New code (offline).'; refMsg.classList.add('ok') }
+      else { user.refCode = res.refCode || res.code || user.refCode; saveLocal(); renderRefBits(); refMsg.textContent = 'New code generated.'; refMsg.classList.add('ok') }
+    });
+    document.getElementById('ref-share').addEventListener('click', async () => {
+      const url = refLink();
+      if (navigator.share) { try { await navigator.share({ title: 'Join me on Play-Time USA', text: 'Use my code:', url }); refMsg.textContent = 'Shared.'; refMsg.className = 'notice ok' } catch { } }
+      else { try { await navigator.clipboard.writeText(url); refMsg.textContent = 'Link copied.'; refMsg.className = 'notice ok' } catch { refMsg.textContent = 'Share unavailable.'; refMsg.className = 'notice warn' } }
+    });
+    document.getElementById('promo-activate').addEventListener('click', async () => {
+      promoMsg.textContent = ''; promoMsg.className = 'notice';
+      const code = document.getElementById('promo-input').value.trim(); if (!code) { promoMsg.textContent = 'Enter promo code.'; promoMsg.classList.add('warn'); return }
+      const res = await api('/api/bonus/activate-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+      if (res.__error) { promoMsg.textContent = 'Activation failed (offline).'; promoMsg.classList.add('err') }
+      else { promoMsg.textContent = 'Promo activated.'; promoMsg.classList.add('ok'); document.getElementById('promo-input').value = ''; loadBonusHistory() }
+    });
+    document.getElementById('invite-btn').addEventListener('click', () => document.getElementById('ref-share').click());
+    document.getElementById('rules-toggle').addEventListener('click', () => { const box = document.getElementById('rules-box'); box.style.display = box.style.display === 'none' ? 'block' : 'none' });
+
+    async function loadBonusHistory() {
+      const tbody = document.querySelector('#bonus-history tbody'); tbody.innerHTML = '';
+      const res = await api('/api/bonuses/history');
+      const rows = res?.__error ? [
+        { receivedAt: '—', activatedAt: '—', wageredAt: '—', title: 'Final bonus', value: '1.00 USD', info: '—', status: 'Closed' }
+      ] : (Array.isArray(res) ? res : []);
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        const when = `Received: ${r.receivedAt || '—'}<br>Activated: ${r.activatedAt || '—'}<br>Wagered: ${r.wageredAt || '—'}`;
+        tr.innerHTML = `<td>${when}</td><td>${r.title || '—'}</td><td>${r.value || '—'}</td><td>${r.info || '—'}</td><td>${r.status || '—'}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ====== Bonus logic ====== */
+    function syncBonusUI() {
+      bonusAvail.textContent = (Number(user.bonusBalance || 0)).toFixed(2);
+      bonusActivateBtn.disabled = user.bonusActivated || Number(user.bonusBalance || 0) <= 0;
+      bonusMsg.textContent = user.bonusActivated ? 'Already used.' : 'This bonus can be applied once.';
+      document.getElementById('player-bonus').textContent = format(Number(user.bonusBalance || 0));
+    }
+
+    bonusActivateBtn.addEventListener('click', async () => {
+      bonusMsg.textContent = ''; bonusMsg.className = 'notice';
+      if (user.bonusActivated) { bonusMsg.textContent = 'Already used.'; bonusMsg.classList.add('warn'); return }
+      const amt = Number(user.bonusBalance || 0);
+      if (amt <= 0) { bonusMsg.textContent = 'No bonus available.'; bonusMsg.classList.add('warn'); return }
+      const res = await api('/api/bonus/activate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: amt }) });
+      if (res.__error) {
+        user.funBalance = Number(user.funBalance || 0) + amt; user.bonusBalance = 0; user.bonusActivated = true;
+        saveLocal(); renderUser(); syncBonusUI();
+        bonusMsg.textContent = 'Applied locally (offline).'; bonusMsg.classList.add('ok');
+      } else {
+        const added = Number(res.amount || amt);
+        user.funBalance = Number(user.funBalance || 0) + added; user.bonusBalance = Number(res.remaining || 0); user.bonusActivated = true;
+        saveLocal(); renderUser(); syncBonusUI();
+        bonusMsg.textContent = 'Bonus applied.'; bonusMsg.classList.add('ok');
+      }
+    });
+
+    extraForm.addEventListener('submit', async (e) => {
+      e.preventDefault(); bonusCodeMsg.textContent = ''; bonusCodeMsg.className = 'notice';
+      if (user.extraBonusRedeemed) { bonusCodeMsg.textContent = 'Extra code already used.'; bonusCodeMsg.classList.add('warn'); return }
+      const code = extraInput.value.trim().toUpperCase();
+      if (!code) { bonusCodeMsg.textContent = 'Enter a code.'; bonusCodeMsg.classList.add('warn'); return }
+      const res = await api('/api/bonus/extra', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) });
+
+      let add = 0, message = 'Extra bonus applied.';
+      if (res.__error) {
+        const map = { SPIN5: 5, SPIN10: 10, SPIN20: 20, SPIN50: 50 };
+        add = map[code] || 0;
+        if (add <= 0) { bonusCodeMsg.textContent = 'Invalid code.'; bonusCodeMsg.classList.add('err'); return }
+      } else {
+        add = Number(res.amount || 0);
+        message = res.message || message;
+        if (add <= 0) { bonusCodeMsg.textContent = res.error || 'Invalid code.'; bonusCodeMsg.classList.add('err'); return }
+      }
+      user.funBalance = Number(user.funBalance || 0) + add; user.extraBonusRedeemed = true;
+      saveLocal(); renderUser();
+      bonusCodeMsg.textContent = `${message} +${add.toFixed(2)}`; bonusCodeMsg.classList.add('ok');
+    });
+
+    /* ====== Bottom quick links ====== */
+    const tabRefill = document.getElementById('tab-refill');
+    if (tabRefill) tabRefill.addEventListener('click', () => { setActiveTab(tabRefill); alert('Recharge flow placeholder — connect to cashier system.') });
+
+    /* ====== Init ====== */
+    function init() { renderGrid(); bootstrapUser() }
+    init();
+  </script>
+</body>
+
+</html>
