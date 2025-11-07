@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta & Title -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="playtimeusa.net - Play online at the hottest new online videogame arcade!" />
+    <meta name="generator" content="Joomla! - Open Source Content Management" />
+    <title>playtimeusa.net</title>
+
+    <!-- App Manifest & Favicon -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    <!-- Fonts used in jackpot values -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+
+    <!-- External Libraries -->
+    <script defer src="./js/lib-axios.ab755785.js"></script>
+    <script defer src="./static/js/lib-react.7650d57a.js"></script>
+    <script defer src="./static/js/307.0cc8af9e.js"></script>
+    <script defer src="./static/js/index.a7150d49.js"></script>
+    <script defer src="./static/js/bonus-wheel.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --steel-1: #1a1f26;
+            --steel-2: #232a33;
+            --rim-radius: 17px;
+            --bevel: 2.5px;
+            --glow-soft: 0 0 28px rgba(41, 255, 209, .18), 0 0 36px rgba(255, 63, 180, .12);
+            --platinum: #00e5ff;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #f89603;
+            --pagination-border-color: linear-gradient(-45deg, #ffae00, #7e03aa, #00fffb);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: Ubuntu, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            color: #e6eaef;
+            background:
+                radial-gradient(150% 120% at 30% 10%, #10161d, #0a0f14 70%, #070a0e),
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, .02) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+                linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(255, 255, 255, .1));
+            overflow-x: hidden;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        .bg-container {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+        }
+
+        .bg-image {
+            width: 100%;
+            height: 100%;
+            background: url("./4background.png") center / cover no-repeat fixed;
+        }
+
+        .section-divider {
+            border: 0;
+            height: 2px;
+            margin: 24px 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .25), transparent);
+        }
+
+        /* ===== Marquee ===== */
+        .ptu-marquee {
+            overflow: hidden;
+            white-space: nowrap;
+            -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 40px, #000 calc(100% - 40px), transparent 100%);
+        }
+
+        .ptu-marquee__track {
+            display: flex;
+            width: max-content;
+            will-change: transform;
+            animation: marquee-scroll var(--marq-dur, 30s) linear infinite;
+        }
+
+        .ptu-marquee__content {
+            display: inline-flex;
+            align-items: center;
+            font-size: clamp(1.5rem, 2.2vw, 3rem);
+            font-weight: 800;
+            gap: 16px;
+            padding-right: 40px;
+        }
+
+        .ptu-marquee__content img {
+            vertical-align: middle;
+        }
+
+        .uk-border {
+            background: linear-gradient(92.61deg, #101b37 -11.07%, #bd0c70 19.99%, #e41476 37.71%, #a92cc9 60.96%, #02c8ed 91.39%, #fff 113.93%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-stroke-width: 2.5px;
+            -webkit-text-stroke-color: transparent;
+            color: rgba(1, 1, 5, .9);
+        }
+
+        @keyframes marquee-scroll {
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* ===== Bonus card (inline preview) ===== */
+        .bonus-card {
+            display: flex;
+            justify-content: center;
+            padding: 24px 16px 0;
+        }
+
+        .card {
+            position: relative;
+            width: 260px;
+            height: 320px;
+            perspective: 1000px;
+        }
+
+        .card-side {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            background: #07182e;
+            overflow: hidden;
+            padding: 18px;
+        }
+
+        .card-side.back {
+            background: #1c0033;
+            color: #fff;
+            transform: rotateY(180deg);
+            text-align: center;
+        }
+
+        #spinButton {
+            margin-top: 16px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(45deg, #ff00cc, #3333ff);
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(255, 0, 200, 0.5);
+        }
+
+        #congratsText {
+            font-size: 1.25rem;
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        .final-amount {
+            font-size: 2rem;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        /* ===== Jackpot bar ===== */
+        .jackpot-bar {
+            position: relative;
+            border-radius: calc(var(--rim-radius) + 4px);
+            padding: 12px;
+            margin: 0 16px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0)),
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, .035) 0 2px, rgba(255, 255, 255, .01) 2px 6px),
+                linear-gradient(180deg, var(--steel-2), var(--steel-1));
+            box-shadow: inset 0 0 0 var(--bevel) rgba(255, 255, 255, .08), var(--glow-soft);
+            overflow: hidden;
+        }
+
+        .jackpot-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .jp-track {
+            display: flex;
+            width: max-content;
+            align-items: center;
+            gap: 96px;
+            will-change: transform;
+            transform: translateZ(0);
+            animation: jackpot-scroll var(--jp-dur, 20s) linear infinite;
+        }
+
+        @keyframes jackpot-scroll {
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .jp-content {
+            display: inline-flex;
+            align-items: center;
+            gap: 24px;
+            padding-right: 96px;
+            white-space: nowrap;
+        }
+
+        .jackpot-item {
+            position: relative;
+            flex: 0 0 auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 24px;
+            padding: 24px 32px;
+            border-radius: 98px;
+            text-align: center;
+            background: rgba(0, 0, 0, 0, 0);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .05), 0 0 12px rgba(0, 0, 0, .35);
+            transition: transform .2s ease, filter .2s ease;
+        }
+
+        .jackpot-item:hover {
+            transform: translateY(-2px);
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, .25));
+        }
+
+        .jackpot-item img {
+            width: 90px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .jackpot-item_text {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
+        }
+
+        .jackpot-label {
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            text-shadow: 0 0 2.5px currentColor, 0 0 10px currentColor;
+        }
+
+        .platinum {
+            color: var(--platinum);
+        }
+
+        .gold {
+            color: var(--gold);
+        }
+
+        .silver {
+            color: var(--silver);
+        }
+
+        .bronze {
+            color: var(--bronze);
+        }
+
+        .jp-value {
+            font-family: "Press Start 2P", monospace;
+            font-size: 1.15rem;
+            letter-spacing: .02em;
+            line-height: 1;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            text-shadow: 0 0 10px currentColor, 0 0 16px currentColor;
+        }
+
+        .jackpot-item.platinum .jp-value {
+            color: var(--platinum);
+            background-image:
+                radial-gradient(circle at 1.5px 1.5px, rgba(0, 229, 255, .9) 35%, transparent 36%),
+                linear-gradient(0deg, var(--platinum), var(--platinum));
+        }
+
+        .jackpot-item.gold .jp-value {
+            color: var(--gold);
+            background-image:
+                radial-gradient(circle at 1.5px 1.5px, rgba(255, 215, 0, .9) 35%, transparent 36%),
+                linear-gradient(0deg, var(--gold), var(--gold));
+        }
+
+        .jackpot-item.silver .jp-value {
+            color: var(--silver);
+            background-image:
+                radial-gradient(circle at 1.5px 1.5px, rgba(192, 192, 192, .9) 35%, transparent 36%),
+                linear-gradient(0deg, var(--silver), var(--silver));
+        }
+
+        .jackpot-item.bronze .jp-value {
+            color: var(--bronze);
+            background-image:
+                radial-gradient(circle at 1.5px 1.5px, rgba(248, 150, 3, .9) 35%, transparent 36%),
+                linear-gradient(0deg, var(--bronze), var(--bronze));
+        }
+
+        @media (max-width: 900px) {
+            .jackpot-item {
+                min-width: 160px;
+                padding: 16px;
+            }
+
+            .jackpot-item img {
+                width: 72px;
+                height: 92px;
+            }
+
+            .jp-value {
+                font-size: 1rem;
+            }
+        }
+
+        /* ===== Player utility bar ===== */
+        .player-utility-wrap {
+            padding: 16px;
+        }
+
+        .player-utility-bar {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 16px;
+            border-radius: calc(var(--rim-radius) + 4px);
+            padding: 12px 16px;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, .06), rgba(255, 255, 255, 0)),
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, .035) 0 2px, rgba(255, 255, 255, .01) 2px 6px),
+                linear-gradient(180deg, var(--steel-2), var(--steel-1));
+            box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .08), 0 0 24px rgba(41, 255, 209, .12);
+            position: relative;
+            z-index: 2;
+        }
+
+        .pu-left,
+        .pu-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .block-user {
+            cursor: default;
+            background: url("./images/icons/user-icon.png") 10px / 40px 40px no-repeat;
+            padding-left: 56px;
+            font-family: Ubuntu, sans-serif;
+            font-weight: 700;
+            color: #00c4ec;
+            text-transform: uppercase;
+            letter-spacing: -.3px;
+            white-space: nowrap;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-info__profile-btn {
+            color: #fff;
+            background-color: #1d9cf9;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .block-balance {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: url("./images/icons/icon-dollar.png") 0 / 40px 40px no-repeat;
+            padding-left: 48px;
+            color: #f0bc04;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .btn-bonus-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: url("/images/bonuses/BDB.png") center / contain no-repeat;
+            border: none;
+            cursor: pointer;
+            filter: drop-shadow(0 0 10px rgba(97, 247, 255, .25));
+            transition: transform .15s ease;
+        }
+
+        .btn-bonus-icon:hover {
+            transform: translateY(-3px);
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .voltage-button {
+            position: relative;
+        }
+
+        .voltage-button button {
+            color: #fff;
+            background: #0d1127;
+            padding: .9rem 1.8rem;
+            border-radius: 2.25rem;
+            border: 3px solid #5978f3;
+            font-size: 1rem;
+            letter-spacing: .06em;
+            cursor: pointer;
+        }
+
+        .voltage-button svg {
+            position: absolute;
+            top: -0.75em;
+            left: -0.25em;
+            width: calc(100% + 0.5em);
+            height: calc(100% + 1.5em);
+            pointer-events: none;
+        }
+
+        .voltage-button svg path {
+            stroke-dasharray: 100;
+            filter: url("#glow");
+        }
+
+        .voltage-button svg path.line-1 {
+            stroke: #f6de8d;
+            stroke-dashoffset: 0;
+            animation: spark-1 3s linear infinite;
+        }
+
+        .voltage-button svg path.line-2 {
+            stroke: #6bfeff;
+            stroke-dashoffset: 500;
+            animation: spark-2 3s linear infinite;
+        }
+
+        .voltage-button .dots {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .voltage-button .dot {
+            position: absolute;
+            width: .8rem;
+            height: .8rem;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0;
+        }
+
+        .voltage-button .dot-1 {
+            top: 0;
+            left: 20%;
+            animation: fly-up 3s linear infinite;
+        }
+
+        .voltage-button .dot-2 {
+            top: 0;
+            left: 55%;
+            animation: fly-up 3s linear infinite .5s;
+        }
+
+        .voltage-button .dot-3 {
+            top: 0;
+            left: 80%;
+            animation: fly-up 3s linear infinite 1s;
+        }
+
+        .voltage-button .dot-4 {
+            bottom: 0;
+            left: 30%;
+            animation: fly-down 3s linear infinite 2.5s;
+        }
+
+        .voltage-button .dot-5 {
+            bottom: 0;
+            left: 65%;
+            animation: fly-down 3s linear infinite 1.5s;
+        }
+
+        @keyframes spark-1 {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+
+        @keyframes spark-2 {
+            to {
+                stroke-dashoffset: -500;
+            }
+        }
+
+        @keyframes fly-up {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(.2);
+            }
+
+            5% {
+                opacity: 1;
+                transform: translateY(-1.3rem) scale(.4);
+            }
+
+            10%,
+            100% {
+                opacity: 0;
+                transform: translateY(-2.6rem) scale(.2);
+            }
+        }
+
+        @keyframes fly-down {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(.2);
+            }
+
+            5% {
+                opacity: 1;
+                transform: translateY(1.3rem) scale(.4);
+            }
+
+            10%,
+            100% {
+                opacity: 0;
+                transform: translateY(2.6rem) scale(.2);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .player-utility-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .pu-right {
+                justify-content: flex-end;
+            }
+        }
+
+        /* ===== Games grid ===== */
+        .games-grid {
+            padding: 16px;
+        }
+
+        .games-grid .container {
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .games-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .game-item {
+            position: relative;
+            width: clamp(220px, 22vw, 240px);
+            border-radius: 12px;
+            border: 6px solid transparent;
+            background-color: rgba(0, 0, 0, .8);
+            overflow: hidden;
+        }
+
+        .game-item a {
+            color: inherit;
+            text-decoration: none;
+            display: block;
+            height: 100%;
+        }
+
+        .game-meta-container {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(rgba(29, 38, 64, 0) 30%, #0a0c10 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 8px;
+            pointer-events: none;
+        }
+
+        .game-meta {
+            display: flex;
+            gap: 6px;
+        }
+
+        .game-meta-block {
+            flex: 1;
+            background: rgba(0, 0, 0, .45);
+            border: 2px solid rgba(255, 255, 255, .1);
+            border-radius: 12px;
+            padding: 6px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .game-meta-first-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            font-style: italic;
+            text-transform: uppercase;
+            color: #fff;
+        }
+
+        .game-meta-first-line .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #2fda2f;
+            box-shadow: 0 0 3px 2px #2fda2f;
+        }
+
+        .game-meta-second-line {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-align: center;
+            color: #fff;
+        }
+
+        .game-item__img {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            background-position: center;
+            background-size: cover;
+        }
+
+        .game-item__caption {
+            text-align: center;
+            padding: 12px;
+            color: #62e2fc;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ===== Pagination ===== */
+        .footer {
+            padding: 24px 16px 80px;
+        }
+
+        .pagination-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .pagination-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .pagination,
+        .pagination-numbers {
+            list-style: none;
+            display: flex;
+            gap: 10px;
+            padding: 0;
+            margin: 0;
+            flex-wrap: wrap;
+        }
+
+        .pagination__cell {
+            display: flex;
+        }
+
+        .btn {
+            position: relative;
+            isolation: isolate;
+            display: inline-grid;
+            place-content: center;
+            padding: 0.35em 1.2em;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #afffff;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            clip-path: polygon(0% 0.5em, 0.5em 0, 100% 0, 100% calc(100% - 0.5em), calc(100% - 0.5em) 100%, 0 100%);
+            box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .btn::before,
+        .btn::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            transition: clip-path 0.35s;
+        }
+
+        .btn::before {
+            background: var(--pagination-border-color);
+            background-size: 300% 300%;
+            animation: move-bg 5s ease infinite;
+        }
+
+        .btn::after {
+            background: #080312;
+            clip-path: polygon(0.225em calc(0.5em + 0.1125em), calc(0.5em + 0.1125em) 0.225em, calc(100% - 0.225em) 0.225em, calc(100% - 0.225em) calc(100% - (0.5em + 0.1125em)), calc(100% - (0.5em + 0.1125em)) calc(100% - 0.225em), 0.225em calc(100% - 0.225em));
+        }
+
+        .btn:hover::after,
+        .btn:focus-visible::after {
+            clip-path: polygon(0 100%, 0 0, 100% 0, 100% 100%, 100% 100%, 0 100%);
+        }
+
+        .btn.pg-active {
+            color: #fff;
+        }
+
+        .btn--disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .pg-arrow {
+            padding: 0.9em;
+            width: 46px;
+            aspect-ratio: 1 / 1;
+        }
+
+        .pg-arrow svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        @keyframes move-bg {
+            0% {
+                background-position: 31% 0%;
+            }
+
+            50% {
+                background-position: 70% 100%;
+            }
+
+            100% {
+                background-position: 31% 0%;
+            }
+        }
+
+        /* ===== Dialogs ===== */
+        .dialogs-manager {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+        }
+
+        .dialogs-manager.is-open {
+            display: block;
+        }
+
+        .dialogs-manager__fade {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+        }
+
+        .dialog__content {
+            position: relative;
+            margin: 5vh auto;
+            max-width: 720px;
+            background: #15124b;
+            border-radius: 16px;
+            padding: 24px;
+            color: #fff;
+        }
+
+        .dialog-close-icon {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            background: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij4KICAgIDxwYXRoIGZpbGw9IiNmZmYiIGQ9Ik0zMiAxNy42TDMwLjQgMTYgMjQgMjIuNCAxNy42IDE2IDE2IDE3LjZMMjIuNCAyNCAxNiAzMC40IDE3LjYgMzIgMjQgMjUuNiAzMC40IDMyIDMyIDMwLjQgMjUuNiAzNS44IDI0eiIvPgo8L3N2Zz4K") center / contain no-repeat;
+            cursor: pointer;
+        }
+
+        /* ===== Bonus modal ===== */
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.4);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .modal-close:hover,
+        .modal-close:focus-visible {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .bonus-modal,
+        .bonus-activate-modal {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 5, 15, 0.92);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            display: none;
+        }
+
+        .bonus-modal.is-open,
+        .bonus-activate-modal.is-open {
+            display: flex;
+        }
+
+        .bonus-modal,
+        .bonus-activate-modal,
+        .dialog__content--bonus {
+            font-family: "Quantico", "Orbitron", "Exo 2", sans-serif;
+            letter-spacing: 0.035em;
+        }
+
+        .bonus-modal .card,
+        .bonus-activate-modal .modal-card {
+            width: 280px;
+            height: 340px;
+        }
+
+        .bonus-activate-modal .modal-card {
+            position: relative;
+            width: min(90vw, 360px);
+            padding: 24px;
+            border-radius: 20px;
+            background: linear-gradient(180deg, #101b37, #050812);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(41, 255, 209, 0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+        }
+
+        .bonus-activate-modal h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            color: #06e0ff;
+        }
+
+        .bonus-activate-modal p {
+            margin: 0;
+            color: #dce8ff;
+        }
+
+        .bonus-amount {
+            font-size: 2.25rem;
+            font-family: "Press Start 2P", monospace;
+            color: #ffd700;
+            text-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .bonus-info-modal {
+            position: relative;
+            width: 280px;
+            height: 360px;
+            transition: 200ms;
+            font-family: "Quantico", "Orbitron", "Exo 2", sans-serif;
+        }
+
+        .bonus-info-modal:active {
+            width: 270px;
+            height: 350px;
+        }
+
+        .bonus-info-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 200;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 0;
+            perspective: 800px;
+        }
+
+        .bonus-info-tracker {
+            position: relative;
+            z-index: 200;
+        }
+
+        .bonus-info-tracker:hover {
+            cursor: pointer;
+        }
+
+        .bonus-info-card {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 24px;
+            transition: 700ms;
+            background: linear-gradient(45deg, #101525, #1b0a2f 55%, #050922 100%);
+            border: 2.5px solid rgba(0, 255, 234, 0.25);
+            overflow: hidden;
+            box-shadow:
+                0 0 24px rgba(0, 0, 0, 0.4),
+                inset 0 0 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .bonus-info-modal:hover .bonus-info-card::before {
+            opacity: 0.8;
+        }
+
+        .bonus-info-card::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 150%;
+            height: 150%;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle at center, rgba(0, 255, 170, 0.1) 0%, rgba(0, 162, 255, 0.05) 50%, transparent 100%);
+            filter: blur(20px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .bonus-info-card-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+            padding: 48px 32px 42px;
+        }
+
+        .bonus-info-prompt {
+            display: none;
+        }
+
+        .bonus-info-title {
+            opacity: 1;
+            transition: none;
+            position: relative;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-align: center;
+            width: 100%;
+            padding-top: 0;
+            transform: translateY(-6px);
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #48fff4 10%, #00a2ff 50%, #8b3dff 90%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 22px rgba(0, 255, 170, 0.45));
+            text-shadow:
+                0 0 18px rgba(92, 103, 255, 0.55),
+                0 0 28px rgba(0, 255, 170, 0.35);
+        }
+
+        .bonus-info-copy {
+            max-width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 0.95rem;
+            line-height: 1.55;
+            color: rgba(226, 246, 255, 0.92);
+            text-shadow: 0 0 16px rgba(0, 255, 170, 0.28);
+        }
+
+        .bonus-info-copy p {
+            margin: 0;
+        }
+
+        .bonus-info-subtitle {
+            position: relative;
+            bottom: auto;
+            width: 100%;
+            text-align: center;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            transform: none;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .bonus-info-subtitle em {
+            display: inline-block;
+            padding: 6px 10px;
+            font-style: italic;
+            font-weight: 700;
+            background: linear-gradient(90deg, #48fff4 0%, #00a2ff 45%, #8b3dff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 18px rgba(0, 255, 204, 0.45));
+            text-shadow:
+                0 0 18px rgba(92, 103, 255, 0.45),
+                0 0 28px rgba(0, 255, 170, 0.3);
+        }
+
+        .bonus-info-highlight {
+            color: #00ffaa;
+            margin-left: 5px;
+            background: linear-gradient(90deg, #5c67ff, #ad51ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .bonus-info-glowing-elements {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .bonus-info-glow {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(0, 255, 170, 0.3) 0%, rgba(0, 255, 170, 0) 70%);
+            filter: blur(15px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .bonus-info-glow-1 {
+            top: -20px;
+            left: -20px;
+        }
+
+        .bonus-info-glow-2 {
+            top: 50%;
+            right: -30px;
+            transform: translateY(-50%);
+        }
+
+        .bonus-info-glow-3 {
+            bottom: -20px;
+            left: 30%;
+        }
+
+        .bonus-info-card-particles span {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #00ffaa;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        @keyframes bonusInfoParticleFloat {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(calc(var(--x, 0) * 30px), calc(var(--y, 0) * 30px));
+                opacity: 0;
+            }
+        }
+
+        .bonus-info-card-particles span:nth-child(1) {
+            --x: 1;
+            --y: -1;
+            top: 40%;
+            left: 20%;
+        }
+
+        .bonus-info-card-particles span:nth-child(2) {
+            --x: -1;
+            --y: -1;
+            top: 60%;
+            right: 20%;
+        }
+
+        .bonus-info-card-particles span:nth-child(3) {
+            --x: 0.5;
+            --y: 1;
+            top: 20%;
+            left: 40%;
+        }
+
+        .bonus-info-card-particles span:nth-child(4) {
+            --x: -0.5;
+            --y: 1;
+            top: 80%;
+            right: 40%;
+        }
+
+        .bonus-info-card-particles span:nth-child(5) {
+            --x: 1;
+            --y: 0.5;
+            top: 30%;
+            left: 60%;
+        }
+
+        .bonus-info-card-particles span:nth-child(6) {
+            --x: -1;
+            --y: 0.5;
+            top: 70%;
+            right: 60%;
+        }
+
+        .bonus-info-card-glare {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(125deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.05) 45%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 55%, rgba(255, 255, 255, 0) 100%);
+            opacity: 0;
+            transition: opacity 300ms;
+        }
+
+        .bonus-info-cyber-lines span {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(92, 103, 255, 0.2), transparent);
+            transform: scaleX(0);
+        }
+
+        .bonus-info-cyber-lines span:nth-child(1) {
+            top: 20%;
+            transform-origin: left;
+            animation: bonusInfoLineGrow 3s linear infinite;
+        }
+
+        .bonus-info-cyber-lines span:nth-child(2) {
+            top: 40%;
+            transform-origin: right;
+            animation: bonusInfoLineGrow 3s linear infinite 1s;
+        }
+
+        .bonus-info-cyber-lines span:nth-child(3) {
+            top: 60%;
+            transform-origin: left;
+            animation: bonusInfoLineGrow 3s linear infinite 2s;
+        }
+
+        .bonus-info-cyber-lines span:nth-child(4) {
+            top: 80%;
+            transform-origin: right;
+            animation: bonusInfoLineGrow 3s linear infinite 1.5s;
+        }
+
+        .bonus-info-corner-elements span {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(92, 103, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .bonus-info-corner-elements span:nth-child(1) {
+            top: 10px;
+            left: 10px;
+            border-right: 0;
+            border-bottom: 0;
+        }
+
+        .bonus-info-corner-elements span:nth-child(2) {
+            top: 10px;
+            right: 10px;
+            border-left: 0;
+            border-bottom: 0;
+        }
+
+        .bonus-info-corner-elements span:nth-child(3) {
+            bottom: 10px;
+            left: 10px;
+            border-right: 0;
+            border-top: 0;
+        }
+
+        .bonus-info-corner-elements span:nth-child(4) {
+            bottom: 10px;
+            right: 10px;
+            border-left: 0;
+            border-top: 0;
+        }
+
+        .bonus-info-scan-line {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent, rgba(92, 103, 255, 0.1), transparent);
+            transform: translateY(-100%);
+            animation: bonusInfoScanMove 2s linear infinite;
+        }
+
+        .bonus-info-card:hover .bonus-info-card-glare {
+            opacity: 1;
+        }
+
+        .bonus-info-card:hover .bonus-info-corner-elements span {
+            border-color: rgba(92, 103, 255, 0.8);
+            box-shadow: 0 0 10px rgba(92, 103, 255, 0.5);
+        }
+
+        .dialog__content--bonus {
+            max-width: 360px;
+            background: transparent;
+            box-shadow: none;
+            padding: 32px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dialog__content--bonus .dialog-close-icon {
+            top: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.45);
+            border-radius: 50%;
+        }
+
+        .noselect {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .bonus-info-tracker:hover ~ .bonus-info-card {
+            transition: 125ms ease-in-out;
+            filter: brightness(1.1);
+        }
+
+        .bonus-info-modal:hover .bonus-info-card::before {
+            transition: 200ms;
+        }
+
+        .bonus-info-tracker:hover ~ .bonus-info-card .bonus-info-prompt {
+            opacity: 0;
+        }
+
+        .bonus-info-tracker:hover ~ .bonus-info-card .bonus-info-title {
+            opacity: 1;
+            transform: translateY(-10px);
+        }
+
+        .bonus-info-tracker:hover ~ .bonus-info-card .bonus-info-glowing-elements .bonus-info-glow {
+            opacity: 1;
+        }
+
+        .bonus-info-tracker:hover ~ .bonus-info-card .bonus-info-card-particles span {
+            animation: bonusInfoParticleFloat 2s infinite;
+        }
+
+        .bonus-info-tr-1:hover ~ .bonus-info-card {
+            transform: rotateX(20deg) rotateY(-10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-2:hover ~ .bonus-info-card {
+            transform: rotateX(20deg) rotateY(-5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-3:hover ~ .bonus-info-card {
+            transform: rotateX(20deg) rotateY(0deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-4:hover ~ .bonus-info-card {
+            transform: rotateX(20deg) rotateY(5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-5:hover ~ .bonus-info-card {
+            transform: rotateX(20deg) rotateY(10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-6:hover ~ .bonus-info-card {
+            transform: rotateX(10deg) rotateY(-10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-7:hover ~ .bonus-info-card {
+            transform: rotateX(10deg) rotateY(-5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-8:hover ~ .bonus-info-card {
+            transform: rotateX(10deg) rotateY(0deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-9:hover ~ .bonus-info-card {
+            transform: rotateX(10deg) rotateY(5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-10:hover ~ .bonus-info-card {
+            transform: rotateX(10deg) rotateY(10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-11:hover ~ .bonus-info-card {
+            transform: rotateX(0deg) rotateY(-10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-12:hover ~ .bonus-info-card {
+            transform: rotateX(0deg) rotateY(-5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-13:hover ~ .bonus-info-card {
+            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-14:hover ~ .bonus-info-card {
+            transform: rotateX(0deg) rotateY(5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-15:hover ~ .bonus-info-card {
+            transform: rotateX(0deg) rotateY(10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-16:hover ~ .bonus-info-card {
+            transform: rotateX(-10deg) rotateY(-10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-17:hover ~ .bonus-info-card {
+            transform: rotateX(-10deg) rotateY(-5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-18:hover ~ .bonus-info-card {
+            transform: rotateX(-10deg) rotateY(0deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-19:hover ~ .bonus-info-card {
+            transform: rotateX(-10deg) rotateY(5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-20:hover ~ .bonus-info-card {
+            transform: rotateX(-10deg) rotateY(10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-21:hover ~ .bonus-info-card {
+            transform: rotateX(-20deg) rotateY(-10deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-22:hover ~ .bonus-info-card {
+            transform: rotateX(-20deg) rotateY(-5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-23:hover ~ .bonus-info-card {
+            transform: rotateX(-20deg) rotateY(0deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-24:hover ~ .bonus-info-card {
+            transform: rotateX(-20deg) rotateY(5deg) rotateZ(0deg);
+        }
+
+        .bonus-info-tr-25:hover ~ .bonus-info-card {
+            transform: rotateX(-20deg) rotateY(10deg) rotateZ(0deg);
+        }
+
+        @keyframes bonusInfoLineGrow {
+            0% {
+                transform: scaleX(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scaleX(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scaleX(0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bonusInfoScanMove {
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                font-size: 0.85rem;
+            }
+
+            .pg-arrow {
+                width: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-container" aria-hidden="true">
+        <div class="bg-image"></div>
+    </div>
+
+    <main>
+        <section class="ptu-marquee" aria-label="Welcome marquee">
+            <div class="ptu-marquee__track" id="ptuMarqueeTrack">
+                <div class="ptu-marquee__content" id="ptuMarqueeContent">
+                    <span class="uk-heading-xlarge">Welcome to</span>
+                    <img src="./images/pt-logo2.png" width="120" height="200" class="el-image" alt="Play-Time USA logo" loading="eager" />
+                    <span class="uk-heading-xlarge uk-border">Play-Time USA</span>
+                    <img src="./images/z.gif" width="110" height="200" class="el-image" alt="" />
+                    <span class="uk-heading-xlarge">Welcome to</span>
+                    <img src="./images/pt-logo2.png" width="120" height="200" class="el-image" alt="Play-Time USA logo" />
+                    <span class="uk-heading-xlarge uk-border">Play-Time USA</span>
+                    <img src="./images/z.gif" width="110" height="200" class="el-image" alt="" />
+                </div>
+                <div class="ptu-marquee__content" id="ptuMarqueeClone" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        <div class="bonus-card">
+            <div class="card" id="bonusCard">
+                <div class="card-side front">
+                    <canvas id="wheelCanvas" width="170" height="170"></canvas>
+                    <button id="spinButton">Spin</button>
+                </div>
+                <div class="card-side back" id="bonusCardBack">
+                    <h2 id="congratsText">Congratulations, you won!</h2>
+                    <p id="finalPrize" class="final-amount">$0.00</p>
+                    <canvas id="confettiCanvas"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <section class="jackpot-bar" aria-label="Jackpot ticker">
+            <div class="jp-track" id="jpTrack">
+                <div class="jp-content" id="jpContent">
+                    <div class="jackpot-item platinum" role="listitem">
+                        <img src="./platinum-jackpot.png" alt="Platinum Jackpot" />
+                        <div class="jackpot-item_text">
+                            <span class="jackpot-label platinum">Platinum</span>
+                            <span class="jp-value" id="jp_platinum">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="jackpot-item gold" role="listitem">
+                        <img src="./gold-jackpot-1.png" alt="Gold Jackpot" />
+                        <div class="jackpot-item_text">
+                            <span class="jackpot-label gold">Gold</span>
+                            <span class="jp-value" id="jp_gold">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="jackpot-item silver" role="listitem">
+                        <img src="./silver-jackpot.png" alt="Silver Jackpot" />
+                        <div class="jackpot-item_text">
+                            <span class="jackpot-label silver">Silver</span>
+                            <span class="jp-value" id="jp_silver">$0.00</span>
+                        </div>
+                    </div>
+                    <div class="jackpot-item bronze" role="listitem">
+                        <img src="./bronze-jackpot.png" alt="Bronze Jackpot" />
+                        <div class="jackpot-item_text">
+                            <span class="jackpot-label bronze">Bronze</span>
+                            <span class="jp-value" id="jp_bronze">$0.00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="jp-content" id="jpClone" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        
+                
+            </div>
+        </section>
+
+        <section class="games-grid games" aria-label="Games catalogue">
+            <div class="container">
+                <div class="games-list" id="gamesList">
+                    <div class="game-item">
+                        <a id="game_fish-eagle-fight" href="https://www.skillmachine.net/game/fish-eagle-fight" target="">
+                            <div class="game-meta-container">
+                                <div class="game-meta">
+                                    <div class="game-meta-block">
+                                        <div class="game-meta-first-line">
+                                            <div class="key">Silver Jackpot</div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                        <div class="game-meta-second-line">$35.91</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/fish-eagle-fight.jpeg');"></div>
+                            <div class="game-item__caption">Fish Eagle Fight</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_7-crabs-party" href="https://www.skillmachine.net/game/7-crabs-party" target="">
+                            <div class="game-meta-container">
+                                <div class="game-meta">
+                                    <div class="game-meta-block">
+                                        <div class="game-meta-first-line">
+                                            <div class="key">Shots/min</div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                        <div class="game-meta-second-line">296</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/7-crabs-party.jpeg');"></div>
+                            <div class="game-item__caption">7 Crabs Party</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_frog2shot" href="https://www.skillmachine.net/game/frog2shot" target="">
+                            <div class="game-meta-container">
+                                <div class="game-meta">
+                                    <div class="game-meta-block">
+                                        <div class="game-meta-first-line">
+                                            <div class="key">Shots/min</div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                        <div class="game-meta-second-line">296</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/frog2shot.jpeg');"></div>
+                            <div class="game-item__caption">Frog2shot</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_kracky-king-2" href="https://www.skillmachine.net/game/kracky-king-2" target="">
+                            <div class="game-meta-container">
+                                <div class="game-meta">
+                                    <div class="game-meta-block">
+                                        <div class="game-meta-first-line">
+                                            <div class="key">Last Win</div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                        <div class="game-meta-second-line">x2</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/kracky-king-2.jpeg');"></div>
+                            <div class="game-item__caption">Kracky King 2</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_fish-battle-5" href="https://www.skillmachine.net/game/fish-battle-5" target="">
+                            <div class="game-meta-container">
+                                <div class="game-meta">
+                                    <div class="game-meta-block">
+                                        <div class="game-meta-first-line">
+                                            <div class="key">Silver Jackpot</div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                        <div class="game-meta-second-line">$35.91</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/fish-battle-5.jpeg');"></div>
+                            <div class="game-item__caption">Fish Battle 5</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_fishing-dragnet" href="https://www.skillmachine.net/game/fishing-dragnet" target="">
+                            <div class="game-meta-container">
+                                <div class="game-meta">
+                                    <div class="game-meta-block">
+                                        <div class="game-meta-first-line">
+                                            <div class="key">Gold Jackpot</div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                        <div class="game-meta-second-line">$163.50</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/fishing-dragnet.jpeg');"></div>
+                            <div class="game-item__caption">Fishing Dragnet (Shooter)</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_dragons-fight" href="https://www.skillmachine.net/game/dragons-fight" target="">
+                            <div class="game-meta-container">
+                                <div class="game-meta">
+                                    <div class="game-meta-block">
+                                        <div class="game-meta-first-line">
+                                            <div class="key">Last Win</div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                        <div class="game-meta-second-line">x2</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/dragons-fight.jpeg');"></div>
+                            <div class="game-item__caption">Dragons Fight</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_galaxy-shooter" href="https://www.skillmachine.net/game/galaxy-shooter" target="">
+                            <div class="game-meta-container">
+                                <div class="game-meta">
+                                    <div class="game-meta-block">
+                                        <div class="game-meta-first-line">
+                                            <div class="key">Online</div>
+                                            <div class="indicator"></div>
+                                        </div>
+                                        <div class="game-meta-second-line">22</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/galaxy-shooter.jpeg');"></div>
+                            <div class="game-item__caption">Galaxy Shooter</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_pilot" href="https://www.skillmachine.net/game/pilot" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/pilot.jpeg');"></div>
+                            <div class="game-item__caption">$Plane$</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_rg_bs" href="https://www.skillmachine.net/game/rg_bs" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/rg_bs.jpeg');"></div>
+                            <div class="game-item__caption">Buffalo Spirit (3x3)</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_gmz_shamrock_story_2_3x3" href="https://www.skillmachine.net/game/gmz_shamrock_story_2_3x3" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/gmz_shamrock_story_2_3x3.jpeg');"></div>
+                            <div class="game-item__caption">Shamrock Story 2 (3x3)</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_pk_cdw" href="https://www.skillmachine.net/game/pk_cdw" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/pk_cdw.jpeg');"></div>
+                            <div class="game-item__caption">Poker 7 Deuces Wild</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_gmz_video_poker_jacks_or_better" href="https://www.skillmachine.net/game/gmz_video_poker_jacks_or_better" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/gmz_video_poker_jacks_or_better.jpeg');"></div>
+                            <div class="game-item__caption">Video Poker Jacks or Better</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_gmz_video_poker_deuces_wild" href="https://www.skillmachine.net/game/gmz_video_poker_deuces_wild" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/gmz_video_poker_deuces_wild.jpeg');"></div>
+                            <div class="game-item__caption">Video Poker Deuces Wild</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_gmz_video_poker_joker_poker" href="https://www.skillmachine.net/game/gmz_video_poker_joker_poker" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/gmz_video_poker_joker_poker.jpeg');"></div>
+                            <div class="game-item__caption">Video Poker Joker Poker</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_tg_rl" href="https://www.skillmachine.net/game/tg_rl" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/tg_rl.jpeg');"></div>
+                            <div class="game-item__caption">Rich Life</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_rg_rl" href="https://www.skillmachine.net/game/rg_rl" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/rg_rl.jpeg');"></div>
+                            <div class="game-item__caption">Rich Life (3x3)</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_ib_hfw" href="https://www.skillmachine.net/game/ib_hfw" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/ib_hfw.jpeg');"></div>
+                            <div class="game-item__caption">Hot Fruits Wheel</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_ib_ffw" href="https://www.skillmachine.net/game/ib_ffw" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/ib_ffw.jpeg');"></div>
+                            <div class="game-item__caption">Fruits Fortune Wheel</div>
+                        </a>
+                    </div>
+                    <div class="game-item">
+                        <a id="game_rpls_egt_game_of_luck" href="https://www.skillmachine.net/game/rpls_egt_game_of_luck" target="">
+                            <div class="game-item__img" style="background-image: url('./media/thumb/300x300/rpls_egt_game_of_luck.jpeg');"></div>
+                            <div class="game-item__caption">Game of Luck</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer footer--withCollectBtn footer--withLogoutBtn footer--withProfileInfo footer--withOutCollectBtn footer--withBonusWagering">
+        <div class="container clearfix">
+            <div class="pagination-container with-refill-redeem" id="paginator">
+                <div class="pagination-block">
+                    <div class="pagination__item pagination__arrow pagination__arrow_left">
+                        <a class="btn pg-arrow" href="#paginator" aria-label="Previous page">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15.41 7.41 14 6 8 12l6 6 1.41-1.41L10.83 12z" />
+                            </svg>
+                        </a>
+                    </div>
+                    <ul class="pagination pagination-numbers">
+                        <li class="pagination__cell pagination__cell--active js-pagination__cell--active">
+                            <a class="btn pg-active" href="#paginator"><span class="pagination__item_text">1/1</span></a>
+                        </li>
+                    </ul>
+                    <div class="pagination__item pagination__arrow pagination__arrow_right">
+                        <a class="btn pg-arrow" href="#paginator" aria-label="Next page">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="m8.59 16.59 4.58-4.59-4.58-4.59L10 6l6 6-6 6z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="pagination-block">
+                    <a href="/games/table" class="btn pg-arrow" aria-label="Previous category">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.41 7.41 14 6 8 12l6 6 1.41-1.41L10.83 12z" />
+                        </svg>
+                    </a>
+                    <ul class="pagination">
+                        <li class="pagination__cell pagination__cell--active js-pagination__cell--active">
+                            <a class="btn pg-active" href="/games/all"><span class="pagination__item_text">All</span></a>
+                        </li>
+                        <li class="pagination__cell"><a class="btn" href="/games/new"><span class="pagination__item_text">New</span></a></li>
+                        <li class="pagination__cell"><a class="btn" href="/games/popular"><span class="pagination__item_text">Popular</span></a></li>
+                        <li class="pagination__cell"><a class="btn" href="/games/fish"><span class="pagination__item_text">Fish</span></a></li>
+                        <li class="pagination__cell"><a class="btn" href="/games/crash"><span class="pagination__item_text">Crash</span></a></li>
+                        <li class="pagination__cell"><a class="btn" href="/games/keno"><span class="pagination__item_text">Keno</span></a></li>
+                    </ul>
+                    <a href="/games/new" class="btn pg-arrow" aria-label="Next category">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="m8.59 16.59 4.58-4.59-4.58-4.59L10 6l6 6-6 6z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+<section class="player-utility-wrap" id="playerBar" aria-label="Player information">
+            <div class="player-utility-bar">
+                <div class="pu-left">
+                    <div class="block-user">
+                        <div class="user-info">
+                            <div class="user-widget__label">Wen#701387</div>
+                            <a class="user-info__profile-btn" href="/profile">Profile</a>
+                        </div>
+                    </div>
+                    <div class="block-balance">
+                        <span class="user-balance-amount">0.00</span>
+                    </div>
+                </div>
+                <div class="pu-right">
+                    <div class="voltage-button">
+                    <button id="btnBonus" class="btn-bonus-icon" aria-label="Bonus info"><span>
+                        <span class="sr-only">Open bonus details</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 234.6 61.3" preserveAspectRatio="none" aria-hidden="true">
+                          
+                            <defs>
+                                <filter id="glow">
+                                    <feGaussianBlur class="blur" result="coloredBlur" stdDeviation="2"></feGaussianBlur>
+                                    <feTurbulence type="fractalNoise" baseFrequency="0.075" numOctaves="0.3" result="turbulence"></feTurbulence>
+                                    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="30" xChannelSelector="R" yChannelSelector="G" result="displace"></feDisplacementMap>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="displace"></feMergeNode>
+                                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <path class="line-1" d="M216.3 51.2c-3.7 0-3.7-1.1-7.3-1.1-3.7 0-3.7 6.8-7.3 6.8-3.7 0-3.7-4.6-7.3-4.6-3.7 0-3.7 3.6-7.3 3.6-3.7 0-3.7-0.9-7.3-0.9-3.7 0-3.7-2.7-7.3-2.7-3.7 0-3.7 7.8-7.3 7.8-3.7 0-3.7-4.9-7.3-4.9-3.7 0-3.7-7.8-7.3-7.8-3.7 0-3.7-1.1-7.3-1.1-3.7 0-3.7 3.1-7.3 3.1-3.7 0-3.7 10.9-7.3 10.9-3.7 0-3.7-12.5-7.3-12.5-3.7 0-3.7 4.6-7.3 4.6-3.7 0-3.7 4.5-7.3 4.5-3.7 0-3.7 3.6-7.3 3.6-3.7 0-3.7-10-7.3-10-3.7 0-3.7-0.4-7.3-0.4-3.7 0-3.7 2.3-7.3 2.3-3.7 0-3.7 7.1-7.3 7.1-3.7 0-3.7-11.2-7.3-11.2-3.7 0-3.7 3.5-7.3 3.5-3.7 0-3.7 3.6-7.3 3.6-3.7 0-3.7-2.9-7.3-2.9-3.7 0-3.7 8.4-7.3 8.4-3.7 0-3.7-14.6-7.3-14.6-3.7 0-3.7 5.8-7.3 5.8-2.2 0-3.8-0.4-5.5-1.5-1.8-1.1-1.8-2.9-2.9-4.8-1-1.8 1.9-2.7 1.9-4.8 0-3.4-2.1-3.4-2.1-6.8s-9.9-3.4-9.9-6.8 8-3.4 8-6.8c0-2.2 2.1-2.4 3.1-4.2 1.1-1.8 0.2-3.9 2-5 1.8-1 3.1-7.9 5.3-7.9 3.7 0 3.7 0.9 7.3 0.9 3.7 0 3.7 6.7 7.3 6.7 3.7 0 3.7-1.8 7.3-1.8 3.7 0 3.7-0.6 7.3-0.6 3.7 0 3.7-7.8 7.3-7.8h7.3c3.7 0 3.7 4.7 7.3 4.7 3.7 0 3.7-1.1 7.3-1.1 3.7 0 3.7 11.6 7.3 11.6 3.7 0 3.7-2.6 7.3-2.6 3.7 0 3.7-12.9 7.3-12.9 3.7 0 3.7 10.9 7.3 10.9 3.7 0 3.7 1.3 7.3 1.3 3.7 0 3.7-8.7 7.3-8.7 3.7 0 3.7 11.5 7.3 11.5 3.7 0 3.7-1.4 7.3-1.4 3.7 0 3.7-2.6 7.3-2.6 3.7 0 3.7-5.8 7.3-5.8 3.7 0 3.7-1.3 7.3-1.3 3.7 0 3.7 6.6 7.3 6.6s3.7-9.3 7.3-9.3c3.7 0 3.7 0.2 7.3 0.2 3.7 0 3.7 8.5 7.3 8.5 3.7 0 3.7 0.2 7.3 0.2 3.7 0 3.7-1.5 7.3-1.5 3.7 0 3.7 1.6 7.3 1.6s3.7-5.1 7.3-5.1c2.2 0 0.6 9.6 2.4 10.7s4.1-2 5.1-0.1c1 1.8 10.3 2.2 10.3 4.3 0 3.4-10.7 3.4-10.7 6.8s1.2 3.4 1.2 6.8 1.9 3.4 1.9 6.8c0 2.2 7.2 7.7 6.2 9.5-1.1 1.8-12.3-6.5-14.1-5.5-1.7 0.9-0.1 6.2-2.2 6.2z" fill="transparent" stroke="#fff"></path>
+                            <path class="line-2" d="M216.3 52.1c-3 0-3-0.5-6-0.5s-3 3-6 3-3-2-6-2-3 1.6-6 1.6-3-0.4-6-0.4-3-1.2-6-1.2-3 3.4-6 3.4-3-2.2-6-2.2-3-3.4-6-3.4-3-0.5-6-0.5-3 1.4-6 1.4-3 4.8-6 4.8-3-5.5-6-5.5-3 2-6 2-3 2-6 2-3 1.6-6 1.6-3-4.4-6-4.4-3-0.2-6-0.2-3 1-6 1-3 3.1-6 3.1-3-4.9-6-4.9-3 1.5-6 1.5-3 1.6-6 1.6-3-1.3-6-1.3-3 3.7-6 3.7-3-6.4-6-6.4-3 2.5-6 2.5h-6c-3 0-3-0.6-6-0.6s-3-1.4-6-1.4-3 0.9-6 0.9-3 4.3-6 4.3-3-3.5-6-3.5c-2.2 0-3.4-1.3-5.2-2.3-1.8-1.1-3.6-1.5-4.6-3.3s-4.4-3.5-4.4-5.7c0-3.4 0.4-3.4 0.4-6.8s2.9-3.4 2.9-6.8-0.8-3.4-0.8-6.8c0-2.2 0.3-4.2 1.3-5.9 1.1-1.8 0.8-6.2 2.6-7.3 1.8-1 5.5-2 7.7-2 3 0 3 2 6 2s3-0.5 6-0.5 3 5.1 6 5.1 3-1.1 6-1.1 3-5.6 6-5.6 3 4.8 6 4.8 3 0.6 6 0.6 3-3.8 6-3.8 3 5.1 6 5.1 3-0.6 6-0.6 3-1.2 6-1.2 3-2.6 6-2.6 3-0.6 6-0.6 3 2.9 6 2.9 3-4.1 6-4.1 3 0.1 6 0.1 3 3.7 6 3.7 3 0.1 6 0.1 3-0.6 6-0.6 3 0.7 6 0.7 3-2.2 6-2.2 3 4.4 6 4.4 3-1.7 6-1.7 3-4 6-4 3 4.7 6 4.7 3-0.5 6-0.5 3-0.8 6-0.8 3-3.8 6-3.8 3 6.3 6 6.3 3-4.8 6-4.8 3 1.9 6 1.9 3-1.9 6-1.9 3 1.3 6 1.3c2.2 0 5-0.5 6.7 0.5 1.8 1.1 2.4 4 3.5 5.8 1 1.8 0.3 3.7 0.3 5.9 0 3.4 3.4 3.4 3.4 6.8s-3.3 3.4-3.3 6.8 4 3.4 4 6.8c0 2.2-6 2.7-7 4.4-1.1 1.8 1.1 6.7-0.7 7.7-1.6 0.8-4.7-1.1-6.8-1.1z" fill="transparent" stroke="#fff"></path>
+                        </svg>
+                        <div class="dots" aria-hidden="true">
+                            <div class="dot dot-1"></div>
+                            <div class="dot dot-2"></div>
+                            <div class="dot dot-3"></div>
+                            <div class="dot dot-4"></div>
+                            <div class="dot dot-5"></div>
+                        </div>
+                    </div>
+
+            
+                    </button>
+                    <div class="voltage-button">
+                       
+                        <button id="btnLogout" type="button">Logout</button></div>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 234.6 61.3" preserveAspectRatio="none" aria-hidden="true">
+                            <defs>
+                                <filter id="glow">
+                                    <feGaussianBlur class="blur" result="coloredBlur" stdDeviation="2"></feGaussianBlur>
+                                    <feTurbulence type="fractalNoise" baseFrequency="0.075" numOctaves="0.3" result="turbulence"></feTurbulence>
+                                    <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="30" xChannelSelector="R" yChannelSelector="G" result="displace"></feDisplacementMap>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="coloredBlur"></feMergeNode>
+                                        <feMergeNode in="displace"></feMergeNode>
+                                        <feMergeNode in="SourceGraphic"></feMergeNode>
+                                   
+                        
+                    
+
+    </footer>
+
+    <!-- Bonus Modal -->
+    <div id="bonusModal" class="bonus-modal" role="dialog" aria-modal="true" aria-labelledby="bonusModalTitle">
+        <div class="card">
+            <button type="button" class="modal-close" data-close-modal="bonusModal" aria-label="Close prize wheel">&times;</button>
+            <div class="card-side front">
+                <canvas id="modalWheelCanvas" width="170" height="170"></canvas>
+                <button id="modalSpinButton">Spin</button>
+            </div>
+            <div class="card-side back">
+                <h2 id="bonusModalTitle">Congratulations, you won!</h2>
+                <p class="final-amount" id="modalFinalPrize">$0.00</p>
+                <canvas id="modalConfettiCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bonus activation modal -->
+    <div id="bonusActivateModal" class="bonus-activate-modal" role="dialog" aria-modal="true" aria-labelledby="bonusActivateTitle">
+        <div class="modal-card">
+            <button type="button" class="modal-close" data-close-modal="bonusActivateModal" aria-label="Close bonus activation">&times;</button>
+            <h2 id="bonusActivateTitle">Activate Daily Bonus</h2>
+            <p>Claim your bonus credits and boost your balance instantly.</p>
+            <div class="bonus-amount" id="bonusActivateAmount">$0.00</div>
+            <div class="modal-actions">
+                <button type="button" class="btn" id="applyBonusButton">Apply Bonus</button>
+                <button type="button" class="btn" id="viewBonusDetailsButton">View Details</button>
+            </div>
+            <p id="bonusStatusMessage" aria-live="polite"></p>
+        </div>
+    </div>
+
+    <!-- Final bonuses dialog -->
+    <div id="final-bonuses-modal" class="dialogs-manager" aria-hidden="true" role="dialog" aria-labelledby="bonusDialogTitle">
+        <div class="dialogs-manager__fade"></div>
+        <div class="dialog__content dialog__content--bonus">
+            <div class="dialog-close-icon" role="button" aria-label="Close bonus dialog"></div>
+            <h2 id="bonusDialogTitle" class="sr-only">Bonus Center</h2>
+            <div class="bonus-info-modal noselect" role="presentation">
+                <div class="bonus-info-canvas">
+                    <div class="bonus-info-tracker bonus-info-tr-1"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-2"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-3"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-4"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-5"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-6"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-7"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-8"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-9"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-10"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-11"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-12"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-13"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-14"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-15"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-16"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-17"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-18"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-19"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-20"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-21"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-22"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-23"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-24"></div>
+                    <div class="bonus-info-tracker bonus-info-tr-25"></div>
+                    <div class="bonus-info-card">
+                        <div class="bonus-info-card-content">
+                            <div class="bonus-info-card-glare"></div>
+                            <div class="bonus-info-cyber-lines">
+                                <span></span><span></span><span></span><span></span>
+                            </div>
+                            <div class="bonus-info-title">Bonus Info</div>
+                            <div class="bonus-info-copy">
+                                <p>At PlayTimeUSA it's happy hour 24/7 - every deposit you make is met with a 50% Bonus Wager.</p>
+                                <p>We don't believe in making you wait until you lose your deposit before you can use your bonus.</p>
+                                <p>Click on the bonus button at the bottom of the page to activate your bonus NOW!</p>
+                            </div>
+                            <div class="bonus-info-glowing-elements">
+                                <div class="bonus-info-glow bonus-info-glow-1"></div>
+                                <div class="bonus-info-glow bonus-info-glow-2"></div>
+                                <div class="bonus-info-glow bonus-info-glow-3"></div>
+                            </div>
+                            <div class="bonus-info-card-particles">
+                                <span></span><span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                            <div class="bonus-info-corner-elements">
+                                <span></span><span></span><span></span><span></span>
+                            </div>
+                            <div class="bonus-info-scan-line"></div>
+                            <div class="bonus-info-subtitle">
+                                <em>PlayTimeUSA - Designed for the player, by the player</em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function waitForFonts() {
+            return (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+        }
+
+        function waitForImages(root) {
+            const imgs = Array.from((root || document).images || []);
+            return Promise.all(imgs.map((img) => {
+                if (img.complete) return Promise.resolve();
+                return (img.decode ? img.decode() : new Promise((res) => img.addEventListener('load', res, { once: true }))).catch(() => { });
+            }));
+        }
+
+        function clamp(n, min, max) {
+            return Math.max(min, Math.min(max, n));
+        }
+
+        function initSeamlessScroller({ track, content, clone, varName, pxPerSecond = 120 }) {
+            if (!track || !content || !clone) return;
+
+            const apply = () => {
+                clone.innerHTML = content.innerHTML;
+                const halfWidth = content.scrollWidth;
+                const total = Math.max(1, halfWidth * 2);
+                const dur = clamp(total / pxPerSecond, 5, 300);
+                track.style.setProperty(varName, `${dur}s`);
+                track.style.animationPlayState = 'running';
+            };
+
+            Promise.all([waitForFonts(), waitForImages(content)]).then(apply).then(() => {
+                const ro = new ResizeObserver(() => {
+                    const prev = getComputedStyle(track).animationPlayState;
+                    track.style.animationPlayState = 'paused';
+                    requestAnimationFrame(() => {
+                        apply();
+                        track.style.animationPlayState = prev === 'paused' ? 'paused' : 'running';
+                    });
+                });
+                ro.observe(content);
+
+                let pending = false;
+                const onResize = () => {
+                    if (pending) return;
+                    pending = true;
+                    requestAnimationFrame(() => {
+                        track.style.animationPlayState = 'paused';
+                        apply();
+                        pending = false;
+                    });
+                };
+                window.addEventListener('resize', onResize);
+                window.addEventListener('orientationchange', onResize);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initSeamlessScroller({
+                track: document.getElementById('ptuMarqueeTrack'),
+                content: document.getElementById('ptuMarqueeContent'),
+                clone: document.getElementById('ptuMarqueeClone'),
+                varName: '--marq-dur',
+                pxPerSecond: 120,
+            });
+
+            initSeamlessScroller({
+                track: document.getElementById('jpTrack'),
+                content: document.getElementById('jpContent'),
+                clone: document.getElementById('jpClone'),
+                varName: '--jp-dur',
+                pxPerSecond: 100,
+            });
+        });
+    </script>
+
+    <script>
+        (function () {
+            const ids = ['jp_platinum', 'jp_gold', 'jp_silver', 'jp_bronze'];
+            const el = Object.fromEntries(ids.map((id) => [id, document.getElementById(id)]));
+
+            const values = {
+                platinum: randomInRange(1000, 2000),
+                gold: randomInRange(40, 60),
+                silver: randomInRange(5, 15),
+                bronze: randomInRange(1, 5),
+            };
+
+            function randomInRange(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function setText(node, value) {
+                if (node) node.textContent = `$${value.toFixed(2)}`;
+            }
+
+            function refresh() {
+                setText(el.jp_platinum, values.platinum);
+                setText(el.jp_gold, values.gold);
+                setText(el.jp_silver, values.silver);
+                setText(el.jp_bronze, values.bronze);
+            }
+
+            refresh();
+
+            setInterval(() => {
+                values.platinum += randomInRange(5, 15);
+                values.gold += randomInRange(0.5, 2);
+                values.silver += randomInRange(0.1, 0.5);
+                values.bronze += randomInRange(0.05, 0.2);
+                refresh();
+            }, 1000);
+        })();
+    </script>
+
+    <script>
+        (function () {
+            const balanceEl = document.querySelector('.user-balance-amount');
+            const balanceKey = 'ptu_balance';
+            const bonusButton = document.getElementById('btnBonus');
+            const bonusActivateModal = document.getElementById('bonusActivateModal');
+            const bonusAmountEl = document.getElementById('bonusActivateAmount');
+            const applyBonusButton = document.getElementById('applyBonusButton');
+            const bonusStatusMessage = document.getElementById('bonusStatusMessage');
+            const viewDetailsButton = document.getElementById('viewBonusDetailsButton');
+            const bonusInfoModal = document.getElementById('final-bonuses-modal');
+            const bonusInfoOverlay = bonusInfoModal.querySelector('.dialogs-manager__fade');
+            const bonusInfoContent = bonusInfoModal.querySelector('.dialog__content');
+            const bonusInfoClose = bonusInfoModal.querySelector('.dialog-close-icon');
+            const bonusModal = document.getElementById('bonusModal');
+            const btnLogout = document.getElementById('btnLogout');
+            const closeButtons = document.querySelectorAll('.modal-close');
+
+            const bonusInfoShownKey = 'ptu_bonus_info_seen';
+            const wheelShownKey = 'ptu_wheel_seen';
+            let pendingBonus = 0;
+
+            function parseBalanceDisplay() {
+                const text = balanceEl?.textContent?.replace(/[^0-9.]/g, '');
+                const value = parseFloat(text);
+                return Number.isFinite(value) ? value : 0;
+            }
+
+            function loadBalance() {
+                const stored = parseFloat(localStorage.getItem(balanceKey));
+                return Number.isFinite(stored) ? stored : parseBalanceDisplay();
+            }
+
+            function syncBalanceDisplay(value) {
+                if (!balanceEl) return;
+                balanceEl.textContent = value.toFixed(2);
+            }
+
+            let currentBalance = loadBalance();
+            syncBalanceDisplay(currentBalance);
+
+            function setBalance(value) {
+                currentBalance = Math.max(0, value);
+                localStorage.setItem(balanceKey, String(currentBalance));
+                syncBalanceDisplay(currentBalance);
+            }
+
+            function formatCurrency(value) {
+                return `$${value.toFixed(2)}`;
+            }
+
+            function randomBonusAmount() {
+                return parseFloat((Math.random() * 15 + 5).toFixed(2));
+            }
+
+            function openModal(modal) {
+                modal?.classList.add('is-open');
+                if (modal?.setAttribute) {
+                    modal.setAttribute('aria-hidden', 'false');
+                }
+            }
+
+            function closeModal(modal) {
+                modal?.classList.remove('is-open');
+                if (modal?.setAttribute) {
+                    modal.setAttribute('aria-hidden', 'true');
+                }
+            }
+
+            function closeAllModals() {
+                closeModal(bonusActivateModal);
+                closeModal(bonusModal);
+                closeModal(bonusInfoModal);
+            }
+
+            closeButtons.forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    const targetId = event.currentTarget.getAttribute('data-close-modal');
+                    if (targetId) {
+                        const modal = document.getElementById(targetId);
+                        closeModal(modal);
+                    }
+                    if (event.currentTarget.closest('.bonus-modal')) {
+                        localStorage.setItem(wheelShownKey, '1');
+                    }
+                });
+            });
+
+            bonusActivateModal?.addEventListener('click', (event) => {
+                if (event.target === bonusActivateModal) {
+                    closeModal(bonusActivateModal);
+                }
+            });
+
+            bonusModal?.addEventListener('click', (event) => {
+                if (event.target === bonusModal) {
+                    closeModal(bonusModal);
+                    localStorage.setItem(wheelShownKey, '1');
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeAllModals();
+                    localStorage.setItem(wheelShownKey, '1');
+                }
+            });
+
+            function prepareBonusModal() {
+                pendingBonus = randomBonusAmount();
+                if (bonusAmountEl) {
+                    bonusAmountEl.textContent = formatCurrency(pendingBonus);
+                }
+                if (bonusStatusMessage) {
+                    bonusStatusMessage.textContent = '';
+                }
+                if (applyBonusButton) {
+                    applyBonusButton.disabled = false;
+                }
+            }
+
+            function openBonusActivation() {
+                prepareBonusModal();
+                openModal(bonusActivateModal);
+            }
+
+            bonusButton?.addEventListener('click', openBonusActivation);
+
+            applyBonusButton?.addEventListener('click', () => {
+                if (applyBonusButton.disabled) return;
+                setBalance(currentBalance + pendingBonus);
+                applyBonusButton.disabled = true;
+                pendingBonus = 0;
+                if (bonusStatusMessage) {
+                    bonusStatusMessage.textContent = 'Bonus applied to your balance!';
+                }
+            });
+
+            function openBonusInfo(force = false) {
+                if (!force && sessionStorage.getItem(bonusInfoShownKey) === '1') {
+                    return;
+                }
+                openModal(bonusInfoModal);
+                sessionStorage.setItem(bonusInfoShownKey, '1');
+            }
+
+            viewDetailsButton?.addEventListener('click', () => {
+                closeModal(bonusActivateModal);
+                openBonusInfo(true);
+            });
+
+            bonusInfoClose.addEventListener('click', (event) => {
+                event.preventDefault();
+                closeModal(bonusInfoModal);
+            });
+
+            bonusInfoOverlay.addEventListener('click', (event) => {
+                if (!bonusInfoContent.contains(event.target)) {
+                    closeModal(bonusInfoModal);
+                }
+            });
+
+            btnLogout?.addEventListener('click', () => {
+                window.location.href = '/logout';
+            });
+
+            document.addEventListener('DOMContentLoaded', () => {
+                const wheelSeen = localStorage.getItem(wheelShownKey) === '1';
+                if (!wheelSeen) {
+                    setTimeout(() => openModal(bonusModal), 300);
+                }
+                openBonusInfo();
+            });
+        })();
+    </script>
+
+    <script>
+        (function () {
+            const grid = document.getElementById('gamesList');
+            if (!grid) return;
+
+            const allItems = Array.from(grid.querySelectorAll('.game-item'));
+            const PER_PAGE = 6;
+            const totalPages = Math.max(1, Math.ceil(allItems.length / PER_PAGE));
+
+            const root = document.querySelector('.pagination-container');
+            const numbersUl = root?.querySelector('.pagination-numbers');
+            const prevArrow = root?.querySelector('.pagination__arrow_left');
+            const nextArrow = root?.querySelector('.pagination__arrow_right');
+
+            let currentPage = Math.min(totalPages, Math.max(1, parseInt(sessionStorage.getItem('ptu_page') || '1', 10)));
+
+            function setPage(n) {
+                currentPage = Math.max(1, Math.min(totalPages, n));
+                sessionStorage.setItem('ptu_page', String(currentPage));
+                renderItems();
+                renderNumbers();
+                updateArrows();
+            }
+
+            function renderItems() {
+                allItems.forEach((el, index) => {
+                    const page = Math.floor(index / PER_PAGE) + 1;
+                    el.style.display = page === currentPage ? 'block' : 'none';
+                });
+            }
+
+            function renderNumbers() {
+                if (!numbersUl) return;
+                numbersUl.innerHTML = '';
+
+                const statusLi = document.createElement('li');
+                statusLi.className = 'pagination__cell pagination__cell--active js-pagination__cell--active';
+                statusLi.innerHTML = `<a class="btn pg-active" href="#paginator"><span class="pagination__item_text">${currentPage}/${totalPages}</span></a>`;
+                numbersUl.appendChild(statusLi);
+
+                const maxButtons = window.innerWidth < 768 ? 4 : 8;
+                let start = Math.max(1, currentPage - Math.floor((maxButtons - 1) / 2));
+                let end = start + maxButtons - 1;
+
+                if (end > totalPages) {
+                    end = totalPages;
+                    start = Math.max(1, end - maxButtons + 1);
+                }
+
+                for (let n = start; n <= end; n += 1) {
+                    const li = document.createElement('li');
+                    li.className = 'pagination__cell';
+                    li.innerHTML = `<a class="btn" href="#paginator"><span class="pagination__item_text">${n}</span></a>`;
+                    if (n === currentPage) {
+                        li.classList.add('pagination__cell--active', 'js-pagination__cell--active');
+                        li.querySelector('.btn')?.classList.add('pg-active');
+                    }
+                    li.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setPage(n);
+                        const btn = li.querySelector('.btn');
+                        if (btn) {
+                            btn.style.transform = 'scale(0.98)';
+                            setTimeout(() => btn.style.transform = '', 120);
+                        }
+                        if (navigator.vibrate) {
+                            try {
+                                navigator.vibrate(10);
+                            } catch (_) {
+                                /* ignore */
+                            }
+                        }
+                    });
+                    numbersUl.appendChild(li);
+                }
+            }
+
+            function setDisabled(el, disabled) {
+                if (!el) return;
+                const btn = el.querySelector('a') || el.querySelector('button');
+                btn?.classList.toggle('btn--disabled', !!disabled);
+                btn?.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+            }
+
+            function updateArrows() {
+                const disablePrev = currentPage <= 1;
+                const disableNext = currentPage >= totalPages;
+                setDisabled(prevArrow, disablePrev);
+                setDisabled(nextArrow, disableNext);
+            }
+
+            prevArrow?.addEventListener('click', (e) => {
+                e.preventDefault();
+                setPage(currentPage - 1);
+            }, { passive: false });
+
+            nextArrow?.addEventListener('click', (e) => {
+                e.preventDefault();
+                setPage(currentPage + 1);
+            }, { passive: false });
+
+            root?.addEventListener('pagination:change', (ev) => {
+                try {
+                    ev.preventDefault();
+                    const targetPage = ev.detail?.page ? parseInt(ev.detail.page, 10) : currentPage;
+                    setPage(targetPage);
+                } catch (_) {
+                    /* ignore */
+                }
+            });
+
+            window.addEventListener('resize', renderNumbers);
+            setPage(currentPage);
+        })();
+    </script>
+</body>
+</html>

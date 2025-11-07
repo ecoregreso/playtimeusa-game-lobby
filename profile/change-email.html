@@ -1,0 +1,59 @@
+ 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="/manifest.json">
+<link rel="shortcut icon" href="/favicon.ico">
+<script>
+window.top.close = function () {
+location.href = "/";
+};
+window.top.gclose = function () {
+location.href = "/";
+};
+window.close = function () {
+location.href = "/";
+};
+window.gclose = function () {
+location.href = "/";
+};
+window.addEventListener("message", function (evt) {
+if (evt.data === "close") {
+location.href = "/";
+}
+}, false);
+</script>
+<title>playtimeusa.net</title>
+<meta name="description" content="playtimeusa.net">
+<script defer="" src="/static/js/lib-axios.ab755785.js"></script>
+<script defer="" src="/static/js/lib-router.a5936d7d.js"></script>
+<script defer="" src="/static/js/lib-react.7650d57a.js"></script>
+<script defer="" src="/static/js/307.0cc8af9e.js"></script>
+<script defer="" src="/static/js/index.a7150d49.js"></script>
+<link href="/static/css/index.3ccc5031.css" rel="stylesheet">
+</head>
+<body> <noscript> You need to enable JavaScript to run this app. </noscript> <div id="root">
+<div class="notificator"></div>
+<div class="profile profile--email">
+<div class="profile-header"><a class="profile-header__back-button" href="/profile"></a><div class="profile-header__title">Change E-mail</div>
+</div>
+<div class="profile-content">
+<form class="profile-email">
+<div class="profile-field">
+<div class="profile-field__label">Enter new email</div><input class="profile-field__input" type="email" placeholder="Email" value=""></div><button class="profile__submit-button" disabled="" type="submit">ui-confirm</button></form>
+</div>
+</div>
+<div class="dialogs-manager ">
+<div class="dialogs-manager__fade ">
+<div class="dialog ">
+<div class="dialog__content"></div>
+</div>
+</div>
+</div>
+<div class="notification-manager"></div>
+</div>
+</body>
+</html>
